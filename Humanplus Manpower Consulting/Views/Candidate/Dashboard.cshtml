@@ -1,0 +1,80 @@
+@using HumanPlus.Domain.Entities.Candidates
+@using HumanPlus.Domain.Entities.Identity
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model Candidate
+@{
+    ViewData["Title"] = "My Dashboard";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-speedometer2"></i> Candidate Dashboard</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Status</h5>
+                <span class="badge bg-info fs-6">@Model.Status</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Profile</h5>
+                <span class="badge @(Model.IsProfileComplete ? "bg-success" : "bg-warning") fs-6">
+                    @(Model.IsProfileComplete ? "Complete" : "Incomplete")
+                </span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Documents</h5>
+                <span class="badge bg-secondary fs-6">@Model.Documents?.Count ?? 0</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Fee</h5>
+                <span class="badge @(Model.IsFeePaid ? "bg-success" : "bg-danger") fs-6">
+                    @(Model.IsFeePaid ? "Paid" : "Unpaid")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-badge display-6 text-primary"></i>
+                    <h5 class="mt-2">My Profile</h5>
+                    <a asp-action="MyProfile" class="btn btn-outline-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-earmark-text display-6 text-primary"></i>
+                    <h5 class="mt-2">Documents</h5>
+                    <a asp-action="Documents" class="btn btn-outline-primary">Upload Documents</a>
+                    <a asp-controller="Document" asp-action="DownloadRegistrationForm" class="btn btn-outline-success btn-sm mt-1">Download Form</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-briefcase display-6 text-primary"></i>
+                    <h5 class="mt-2">Job Opportunities</h5>
+                    <a asp-action="JobOpportunities" class="btn btn-outline-primary">Browse Jobs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

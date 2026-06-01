@@ -1,0 +1,176 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+    </div>
+
+    <div class="carousel-inner">
+        <div class="carousel-item active" style="background-image: url('/images/slider/slide1.jpg')">
+            <div class="carousel-overlay d-flex align-items-center">
+                <div class="container text-center text-white">
+                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
+                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
+                    <p>Connecting skilled workforce with leading employers across industries.</p>
+                    <div class="mt-4">
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg me-2">Register as Job Seeker</a>
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="background-image: url('/images/slider/slide2.jpg')">
+            <div class="carousel-overlay d-flex align-items-center">
+                <div class="container text-center text-white">
+                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
+                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
+                    <p>Connecting skilled workforce with leading employers across industries.</p>
+                    <div class="mt-4">
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg me-2">Register as Job Seeker</a>
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="background-image: url('/images/slider/slide3.jpg')">
+            <div class="carousel-overlay d-flex align-items-center">
+                <div class="container text-center text-white">
+                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
+                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
+                    <p>Connecting skilled workforce with leading employers across industries.</p>
+                    <div class="mt-4">
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg me-2">Register as Job Seeker</a>
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="background-image: url('/images/slider/slide4.jpg')">
+            <div class="carousel-overlay d-flex align-items-center">
+                <div class="container text-center text-white">
+                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
+                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
+                    <p>Connecting skilled workforce with leading employers across industries.</p>
+                    <div class="mt-4">
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg me-2">Register as Job Seeker</a>
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="background-image: url('/images/slider/slide5.jpg')">
+            <div class="carousel-overlay d-flex align-items-center">
+                <div class="container text-center text-white">
+                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
+                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
+                    <p>Connecting skilled workforce with leading employers across industries.</p>
+                    <div class="mt-4">
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg me-2">Register as Job Seeker</a>
+                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(14,116,144,0.1); color: #0e7490;">
+                        <i class="bi bi-person-workspace"></i>
+                    </div>
+                    <h5 class="fw-semibold">For Job Seekers</h5>
+                    <p class="card-text text-muted">Find the right job opportunity matching your skills and experience.</p>
+                    <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-outline-primary">Get Started</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <h5 class="fw-semibold">For Employers</h5>
+                    <p class="card-text text-muted">Post job demands and find qualified candidates quickly.</p>
+                    <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-outline-primary">Post a Demand</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(79,70,229,0.1); color: #4f46e5;">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h5 class="fw-semibold">Industries We Serve</h5>
+                    <p class="card-text text-muted">Healthcare, Hospitality, Manufacturing, Security, Logistics & more.</p>
+                    <a asp-controller="Home" asp-action="Services" class="btn btn-outline-primary">Our Services</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="why-section py-5">
+    <div class="container text-center">
+        <h3 class="section-title fw-bold">Why Choose <span class="text-gold">HumanPlus</span>?</h3>
+        <p class="section-subtitle text-muted mb-0">What makes us the preferred manpower consulting partner</p>
+        <div class="row mt-5 g-4">
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon" style="background: rgba(14,116,144,0.1); color: #0e7490;">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <h6 class="fw-semibold mb-1">Verified Candidates</h6>
+                    <p class="why-text">Thorough background &amp; skill verification of every candidate</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+                        <i class="bi bi-lightning-fill"></i>
+                    </div>
+                    <h6 class="fw-semibold mb-1">Quick Placement</h6>
+                    <p class="why-text">Fast turnaround with our extensive candidate database</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon" style="background: rgba(79,70,229,0.1); color: #4f46e5;">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <h6 class="fw-semibold mb-1">PAN Odisha Coverage</h6>
+                    <p class="why-text">We serve clients across all 30 districts of Odisha</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
+                        <i class="bi bi-headset"></i>
+                    </div>
+                    <h6 class="fw-semibold mb-1">End-to-End Support</h6>
+                    <p class="why-text">Complete support from recruitment to onboarding</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

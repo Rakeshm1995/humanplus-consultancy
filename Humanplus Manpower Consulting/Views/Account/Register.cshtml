@@ -1,0 +1,66 @@
+@model RegisterViewModel
+@{ ViewData["Title"] = "Register"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card register-card shadow border-0 rounded-4">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <div class="register-accent mx-auto mb-3"></div>
+                    <h2 class="fw-bold mb-1">Create Account</h2>
+                    <p class="text-muted small">Fill in your details to get started</p>
+                </div>
+                <form asp-action="Register" method="post" id="registerForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" name="Role" value="@ViewBag.Role" />
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-medium">Full Name <span class="text-danger">*</span></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-medium">Email <span class="text-muted">(optional)</span></label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email address (optional)" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label fw-medium">Mobile Number <span class="text-danger">*</span></label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your 10-digit mobile number" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-medium">Password <span class="text-danger">*</span></label>
+                        <input asp-for="Password" class="form-control" placeholder="Enter your password (min. 6 characters)" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label fw-medium">Confirm Password <span class="text-danger">*</span></label>
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Re-enter your password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="registerBtn">
+                        <span class="spinner-border spinner-border-sm d-none me-2" role="status" id="btnSpinner"></span>
+                        <span id="btnText">Register</span>
+                    </button>
+                    <hr class="my-3" />
+                    <p class="text-center mb-0 small">
+                        Already have an account? <a asp-action="Login" class="fw-medium">Login</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            if (!this.checkValidity()) return;
+            var btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            document.getElementById('btnText').textContent = 'Registering...';
+            document.getElementById('btnSpinner').classList.remove('d-none');
+        });
+    </script>
+}

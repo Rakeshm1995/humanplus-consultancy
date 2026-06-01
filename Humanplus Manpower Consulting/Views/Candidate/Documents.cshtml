@@ -1,0 +1,87 @@
+@using HumanPlus.Domain.Entities.Candidates
+@model List<CandidateDocument>
+@{
+    ViewData["Title"] = "My Documents";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-file-earmark-text"></i> My Documents</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Upload Document</div>
+        <div class="card-body">
+            <form asp-action="UploadDocument" method="post" enctype="multipart/form-data">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <select name="documentType" class="form-select" required>
+                            <option value="">-- Document Type --</option>
+                            <option value="Aadhaar">Aadhaar Card</option>
+                            <option value="PoliceVerification">Police Verification</option>
+                            <option value="Photo">Passport Photo</option>
+                            <option value="Resume">Resume</option>
+                            <option value="Education">Educational Certificate</option>
+                            <option value="Experience">Experience Certificate</option>
+                            <option value="PAN">PAN Card</option>
+                            <option value="DrivingLicense">Driving License</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="file" name="file" class="form-control" required />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Upload</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">Uploaded Documents</div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <p class="text-muted">No documents uploaded yet.</p>
+            }
+            else
+            {
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>File</th>
+                            <th>Uploaded</th>
+                            <th>Verified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model)
+                        {
+                            <tr>
+                                <td>@doc.DocumentType</td>
+                                <td><a href="@doc.FilePath" target="_blank">@doc.OriginalFileName</a></td>
+                                <td>@doc.UploadedAt.ToString("dd-MMM-yyyy")</td>
+                                <td>
+                                    @if (doc.IsVerified)
+                                    {
+                                        <span class="badge bg-success">Verified</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">Pending</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+@using HumanPlus.Domain.Entities.Jobs
+@model List<JobDemand>
+@{
+    ViewData["Title"] = "Job Opportunities";
+    var appliedJobIds = ViewBag.AppliedJobIds as List<int> ?? new List<int>();
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-briefcase"></i> Job Opportunities</h2>
+    <hr />
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No job openings available at the moment.</div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var job in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@job.JobTitle</h5>
+                            <h6 class="text-muted">@job.Employer?.CompanyName</h6>
+                            <p class="small text-muted mb-2">
+                                <i class="bi bi-geo-alt"></i> @job.WorkLocation
+                                <br /><i class="bi bi-currency-rupee"></i> @(job.MinSalary?.ToString("N0") ?? "N/A") - @(job.MaxSalary?.ToString("N0") ?? "N/A")
+                                <br /><i class="bi bi-briefcase"></i> @job.MinExperience - @job.MaxExperience yrs
+                            </p>
+                            <p class="small">@job.RequiredSkills</p>
+                            <p class="small text-muted">
+                                Openings: @job.NumberOfOpenings |
+                                @if (job.ImmediateJoining) { <span class="badge bg-success">Immediate</span> }
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            @if (appliedJobIds.Contains(job.Id))
+                            {
+                                <span class="badge bg-secondary">Applied</span>
+                            }
+                            else
+                            {
+                                <form asp-action="Apply" method="post" class="d-inline">
+                                    <input type="hidden" name="jobDemandId" value="@job.Id" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Apply Now</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

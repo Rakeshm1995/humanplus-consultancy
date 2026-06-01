@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HumanPlus</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-people-fill"></i> HumanPlus
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="nav-item"><a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "About" ? "active" : "")" asp-controller="Home" asp-action="About">About</a></li>
+                        <li class="nav-item"><a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")" asp-controller="Home" asp-action="Services">Services</a></li>
+                        <li class="nav-item"><a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Contact" ? "active" : "")" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity!.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Notification" asp-action="Index" title="Notifications">
+                                    <i class="bi bi-bell"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle"></i> @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (User.IsInRole("JobSeeker"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="Dashboard">Dashboard</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="MyProfile">My Profile</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="Documents">Documents</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="JobOpportunities">Job Opportunities</a></li>
+                                    }
+                                    else if (User.IsInRole("Employer"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Employer" asp-action="Dashboard">Dashboard</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Employer" asp-action="CompanyProfile">Company Profile</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Employer" asp-action="PostDemand">Post Demand</a></li>
+                                    }
+                                    else if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Admin Dashboard</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Candidates">Manage Candidates</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Employers">Manage Employers</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Login</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Register</a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker">As Job Seeker</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Register" asp-route-role="Employer">As Employer</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="pb-5">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top footer bg-light py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-1 text-muted">&copy; @DateTime.Now.Year - HumanPlus Manpower Consulting. All rights reserved.</p>
+            <small class="d-block text-muted">Bhubaneswar, Odisha, India</small>
+            <hr class="footer-separator" />
+            <small class="powered-by">Powered by <a href="https://intulet.com" target="_blank" rel="noopener noreferrer" class="text-primary fw-bold text-decoration-none">Intulet Technologies</a></small>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

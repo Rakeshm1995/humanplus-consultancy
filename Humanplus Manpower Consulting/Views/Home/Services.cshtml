@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "Services";
+}
+
+<div class="services-hero py-5 text-white">
+    <div class="container text-center py-4">
+        <h1 class="display-5 fw-bold">Our <span class="text-gold">Services</span></h1>
+        <p class="lead mx-auto" style="max-width: 650px; opacity: 0.92;">
+            Comprehensive manpower solutions tailored to your industry needs
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(225,29,72,0.1); color: #e11d48;">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                    <h5 class="fw-semibold">Healthcare Staffing</h5>
+                    <p class="card-text text-muted">Nurses, attendants, technicians for hospitals &amp; clinics.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+                        <i class="bi bi-building-hotel"></i>
+                    </div>
+                    <h5 class="fw-semibold">Hospitality Staffing</h5>
+                    <p class="card-text text-muted">Chefs, waitstaff, housekeeping for hotels &amp; restaurants.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(14,116,144,0.1); color: #0e7490;">
+                        <i class="bi bi-gear-wide-connected"></i>
+                    </div>
+                    <h5 class="fw-semibold">Industrial Staffing</h5>
+                    <p class="card-text text-muted">Skilled workers for production &amp; manufacturing units.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(79,70,229,0.1); color: #4f46e5;">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <h5 class="fw-semibold">Security Services</h5>
+                    <p class="card-text text-muted">Trained security guards for commercial &amp; residential.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(16,185,129,0.1); color: #10b981;">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <h5 class="fw-semibold">Logistics &amp; Warehousing</h5>
+                    <p class="card-text text-muted">Warehouse staff, drivers, loading/unloading manpower.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card service-card h-100 text-center p-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="icon-circle mb-3" style="background: rgba(107,114,128,0.1); color: #6b7280;">
+                        <i class="bi bi-building-gear"></i>
+                    </div>
+                    <h5 class="fw-semibold">Facility Management</h5>
+                    <p class="card-text text-muted">Housekeeping, maintenance, and facility support staff.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cta-section py-5 text-white">
+    <div class="container text-center py-3">
+        <h3 class="fw-bold mb-2">Ready to Get Started?</h3>
+        <p class="mb-4" style="opacity: 0.9; font-size: 1.1rem;">Register today and find the right talent or the right job</p>
+        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-gold btn-lg me-2 mb-2">Register as Employer</a>
+        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-outline-light btn-lg mb-2">Register as Job Seeker</a>
+    </div>
+</div>

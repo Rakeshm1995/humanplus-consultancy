@@ -1,0 +1,81 @@
+@using HumanPlus.Domain.Entities.Employers
+@using HumanPlus.Domain.Enums
+@model List<Employer>
+@{
+    ViewData["Title"] = "Manage Employers";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-building"></i> Employer Management</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                @foreach (var s in (EmployerStatus[])ViewBag.EmployerStatuses)
+                {
+                    <option value="@s" selected="@(ViewBag.SelectedStatus == s.ToString())">@s</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-5">
+            <input type="text" name="search" class="form-control" placeholder="Search by company name, email..." value="@ViewBag.Search" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Company</th>
+                    <th>Contact Person</th>
+                    <th>Email</th>
+                    <th>Industry</th>
+                    <th>Status</th>
+                    <th>Registered</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>@e.CompanyName</td>
+                        <td>@e.ContactPersonName</td>
+                        <td>@e.User?.Email</td>
+                        <td>@e.Industry?.Name</td>
+                        <td>
+                            <span class="badge bg-@(e.Status switch {
+                                EmployerStatus.Active => "success",
+                                EmployerStatus.PendingVerification => "warning",
+                                EmployerStatus.Suspended => "danger",
+                                _ => "secondary"
+                            })">@e.Status</span>
+                        </td>
+                        <td>@e.CreatedAt.ToString("dd-MMM-yy")</td>
+                        <td>
+                            <form asp-action="UpdateEmployerStatus" method="post" class="d-inline">
+                                <input type="hidden" name="employerId" value="@e.Id" />
+                                <select name="newStatus" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                    @foreach (var s in (EmployerStatus[])ViewBag.EmployerStatuses)
+                                    {
+                                        <option value="@s" selected="@(e.Status == s)">@s</option>
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

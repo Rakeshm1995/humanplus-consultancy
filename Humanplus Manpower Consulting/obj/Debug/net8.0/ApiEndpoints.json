@@ -1,0 +1,18 @@
+[
+  {
+    "ContainingType": "Humanplus_Manpower_Consulting.Controllers.Api.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Humanplus_Manpower_Consulting.Controllers.Api.LoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

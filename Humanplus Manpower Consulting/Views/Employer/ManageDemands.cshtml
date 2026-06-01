@@ -1,0 +1,58 @@
+@using HumanPlus.Domain.Entities.Jobs
+@using HumanPlus.Domain.Enums
+@model List<JobDemand>
+@{
+    ViewData["Title"] = "Manage Demands";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-list-check"></i> My Job Demands</h2>
+    <hr />
+    <a asp-action="PostDemand" class="btn btn-primary mb-3"><i class="bi bi-plus"></i> Post New Demand</a>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No demands posted yet.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Openings</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Posted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var job in Model)
+                    {
+                        <tr>
+                            <td>@job.JobTitle</td>
+                            <td>@job.NumberOfOpenings</td>
+                            <td>@job.WorkLocation</td>
+                            <td>
+                                <span class="badge bg-@(job.Status switch {
+                                    JobDemandStatus.Approved => "success",
+                                    JobDemandStatus.PendingApproval => "warning",
+                                    JobDemandStatus.Fulfilled => "info",
+                                    JobDemandStatus.Closed => "secondary",
+                                    JobDemandStatus.Cancelled => "danger",
+                                    _ => "primary"
+                                })">@job.Status</span>
+                            </td>
+                            <td>@job.CreatedAt.ToString("dd-MMM-yyyy")</td>
+                            <td>
+                                <a asp-action="CandidateMatches" asp-route-jobDemandId="@job.Id" class="btn btn-sm btn-outline-primary">View Candidates</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,59 @@
+@model LoginViewModel
+@{ ViewData["Title"] = "Login"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card auth-card shadow border-0 rounded-4">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <div class="auth-accent mx-auto mb-3"></div>
+                    <h2 class="fw-bold mb-1">Welcome Back</h2>
+                    <p class="text-muted small">Sign in to your account</p>
+                </div>
+                <form asp-action="Login" method="post" id="loginForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label fw-medium">Mobile Number <span class="text-danger">*</span></label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your 10-digit mobile number" autocomplete="tel" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-medium">Password <span class="text-danger">*</span></label>
+                        <input asp-for="Password" class="form-control" placeholder="Enter your password" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small"></label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-2" id="loginBtn">
+                        <span class="spinner-border spinner-border-sm d-none me-2" role="status" id="btnSpinner"></span>
+                        <span id="btnText">Sign In</span>
+                    </button>
+                    <div class="text-center mb-2">
+                        <a asp-action="ForgotPassword" class="small">Forgot Password?</a>
+                    </div>
+                    <hr class="my-3" />
+                    <p class="text-center mb-0 small">
+                        Don't have an account?
+                        <a asp-action="Register" asp-route-role="JobSeeker" class="fw-medium">Register as Job Seeker</a> |
+                        <a asp-action="Register" asp-route-role="Employer" class="fw-medium">Register as Employer</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('loginForm')?.addEventListener('submit', function (e) {
+            if (!this.checkValidity()) return;
+            var btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            document.getElementById('btnText').textContent = 'Signing In...';
+            document.getElementById('btnSpinner').classList.remove('d-none');
+        });
+    </script>
+}

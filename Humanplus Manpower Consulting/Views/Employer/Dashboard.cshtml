@@ -1,0 +1,72 @@
+@using HumanPlus.Domain.Entities.Employers
+@model Employer
+@{
+    ViewData["Title"] = "Employer Dashboard";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-building"></i> Employer Dashboard - @Model.CompanyName</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Total Demands</h5>
+                <span class="display-6 text-primary">@ViewBag.TotalDemands</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Active</h5>
+                <span class="display-6 text-success">@ViewBag.ActiveDemands</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Fulfilled</h5>
+                <span class="display-6 text-info">@ViewBag.FulfilledDemands</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3 shadow-sm">
+                <h5>Status</h5>
+                <span class="badge bg-@(Model.Status == EmployerStatus.Active ? "success" : "warning") fs-6">@Model.Status</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-building-gear display-6 text-primary"></i>
+                    <h5 class="mt-2">Company Profile</h5>
+                    <a asp-action="CompanyProfile" class="btn btn-outline-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-plus-circle display-6 text-primary"></i>
+                    <h5 class="mt-2">Post Demand</h5>
+                    <a asp-action="PostDemand" class="btn btn-outline-primary">Post New Demand</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-list-check display-6 text-primary"></i>
+                    <h5 class="mt-2">Manage Demands</h5>
+                    <a asp-action="ManageDemands" class="btn btn-outline-primary">View All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+@using HumanPlus.Domain.Entities.Candidates
+@using HumanPlus.Domain.Enums
+@model List<Candidate>
+@{
+    ViewData["Title"] = "Manage Candidates";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-people"></i> Candidate Management</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                @foreach (var s in (CandidateStatus[])ViewBag.CandidateStatuses)
+                {
+                    <option value="@s" selected="@(ViewBag.SelectedStatus == s.ToString())">@s</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-5">
+            <input type="text" name="search" class="form-control" placeholder="Search by name, email, Aadhaar..." value="@ViewBag.Search" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Status</th>
+                    <th>Fee</th>
+                    <th>Profile</th>
+                    <th>Registered</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.User?.FullName</td>
+                        <td>@c.User?.Email</td>
+                        <td>@c.User?.PhoneNumber</td>
+                        <td>
+                            <span class="badge bg-@(c.Status switch {
+                                CandidateStatus.Active => "success",
+                                CandidateStatus.PendingVerification => "warning",
+                                CandidateStatus.Rejected => "danger",
+                                CandidateStatus.Placed => "info",
+                                _ => "secondary"
+                            })">@c.Status</span>
+                        </td>
+                        <td>@(c.IsFeePaid ? "Paid" : "Unpaid")</td>
+                        <td>@(c.IsProfileComplete ? "Complete" : "Incomplete")</td>
+                        <td>@c.CreatedAt.ToString("dd-MMM-yy")</td>
+                        <td>
+                            <form asp-action="UpdateCandidateStatus" method="post" class="d-inline">
+                                <input type="hidden" name="candidateId" value="@c.Id" />
+                                <select name="newStatus" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                    @foreach (var s in (CandidateStatus[])ViewBag.CandidateStatuses)
+                                    {
+                                        <option value="@s" selected="@(c.Status == s)">@s</option>
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

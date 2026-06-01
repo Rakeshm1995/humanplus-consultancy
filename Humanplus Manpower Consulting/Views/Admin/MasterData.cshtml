@@ -1,0 +1,84 @@
+@using HumanPlus.Domain.Entities.MasterData
+@{
+    ViewData["Title"] = "Master Data";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-gear"></i> Master Data Settings</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">Skills</div>
+                <div class="card-body">
+                    <form asp-action="AddSkill" method="post" class="input-group mb-2">
+                        <input name="name" class="form-control" placeholder="New skill..." required />
+                        <button class="btn btn-primary">Add</button>
+                    </form>
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var s in (List<Skill>)ViewBag.Skills) { <span class="badge bg-secondary">@s.Name</span> }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">Industries</div>
+                <div class="card-body">
+                    <form asp-action="AddIndustry" method="post" class="input-group mb-2">
+                        <input name="name" class="form-control" placeholder="New industry..." required />
+                        <button class="btn btn-primary">Add</button>
+                    </form>
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var i in (List<Industry>)ViewBag.Industries) { <span class="badge bg-info">@i.Name</span> }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">Qualifications</div>
+                <div class="card-body">
+                    <form asp-action="AddQualification" method="post" class="input-group mb-2">
+                        <input name="name" class="form-control" placeholder="New qualification..." required />
+                        <button class="btn btn-primary">Add</button>
+                    </form>
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var q in (List<Qualification>)ViewBag.Qualifications) { <span class="badge bg-success">@q.Name</span> }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header">States & Districts</div>
+                <div class="card-body">
+                    <form asp-action="AddState" method="post" class="input-group mb-2">
+                        <input name="name" class="form-control" placeholder="New state..." required />
+                        <button class="btn btn-primary">Add</button>
+                    </form>
+                    <form asp-action="AddDistrict" method="post" class="input-group mb-2">
+                        <select name="stateId" class="form-select" required>
+                            <option value="">Select state...</option>
+                            @foreach (var s in (List<State>)ViewBag.States) { <option value="@s.Id">@s.Name</option> }
+                        </select>
+                        <input name="name" class="form-control" placeholder="District..." required />
+                        <button class="btn btn-primary">Add</button>
+                    </form>
+                    @foreach (var s in (List<State>)ViewBag.States)
+                    {
+                        <strong>@s.Name:</strong>
+                        @foreach (var d in s.Districts) { <span class="badge bg-warning text-dark">@d.Name</span> }
+                        <br />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
