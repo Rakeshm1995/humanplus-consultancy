@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using HumanPlus.Domain.Entities.Jobs;
 using HumanPlus.Domain.Entities.MasterData;
 using HumanPlus.Domain.Enums;
 
@@ -29,6 +30,7 @@ namespace HumanPlus.Domain.Entities.Candidates
         [MaxLength(10)] public string? PinCode { get; set; }
 
         [MaxLength(500)] public string? ProfileImagePath { get; set; }
+        [MaxLength(500)] public string? LanguagesKnown { get; set; }
         public bool IsFresher { get; set; } = true;
         public int? TotalExperienceYears { get; set; }
         [MaxLength(200)] public string? PreviousEmployer { get; set; }
@@ -48,6 +50,7 @@ namespace HumanPlus.Domain.Entities.Candidates
         public CandidateStatus Status { get; set; } = CandidateStatus.NewRegistration;
         public bool IsProfileComplete { get; set; }
         public bool IsFeePaid { get; set; }
+        public bool IsOfficeVisited { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
@@ -55,5 +58,6 @@ namespace HumanPlus.Domain.Entities.Candidates
         public ICollection<CandidateExperience> Experiences { get; set; } = new List<CandidateExperience>();
         public ICollection<CandidateSkill> Skills { get; set; } = new List<CandidateSkill>();
         public ICollection<CandidateDocument> Documents { get; set; } = new List<CandidateDocument>();
+        public ICollection<Placement> Placements { get; set; } = new List<Placement>();
     }
 }

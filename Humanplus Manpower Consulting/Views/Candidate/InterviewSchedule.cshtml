@@ -1,0 +1,109 @@
+@using HumanPlus.Domain.Entities.Jobs
+@model List<Interview>
+@{
+    ViewData["Title"] = "Interview Schedule";
+    var upcoming = Model.Where(i => i.InterviewDate >= DateTime.UtcNow).OrderBy(i => i.InterviewDate).ToList();
+    var past = Model.Where(i => i.InterviewDate < DateTime.UtcNow).OrderByDescending(i => i.InterviewDate).ToList();
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-calendar-check"></i> Interview Schedule</h2>
+    <hr />
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No interviews scheduled yet. Once you apply for jobs and get shortlisted, your interviews will appear here.
+        </div>
+    }
+    else
+    {
+        @* Upcoming *@
+        <h5 class="fw-bold mb-3"><i class="bi bi-arrow-up-circle text-success"></i> Upcoming Interviews (@upcoming.Count)</h5>
+        @if (!upcoming.Any())
+        {
+            <p class="text-muted">No upcoming interviews.</p>
+        }
+        else
+        {
+            <div class="row g-3 mb-4">
+                @foreach (var iv in upcoming)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-success shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold mb-0">@iv.JobDemand?.JobTitle</h6>
+                                    <span class="badge bg-success">Upcoming</span>
+                                </div>
+                                <p class="small text-muted mb-1">
+                                    <i class="bi bi-calendar-event"></i> @iv.InterviewDate.ToString("dddd, dd MMMM yyyy")
+                                    <br /><i class="bi bi-clock"></i> @iv.InterviewDate.ToString("hh:mm tt")
+                                </p>
+                                <p class="small text-muted mb-0">
+                                    <i class="bi bi-geo-alt"></i> @(iv.LocationOrLink ?? "TBD")
+                                </p>
+                                @if (!string.IsNullOrWhiteSpace(iv.Notes))
+                                {
+                                    <p class="small text-muted mt-2 mb-0"><i class="bi bi-chat-dots"></i> @iv.Notes</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @* Past *@
+        <h5 class="fw-bold mb-3 mt-4"><i class="bi bi-arrow-down-circle text-muted"></i> Past Interviews (@past.Count)</h5>
+        @if (!past.Any())
+        {
+            <p class="text-muted">No past interviews.</p>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Job Title</th>
+                                    <th>Date</th>
+                                    <th>Location</th>
+                                    <th>Result</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var iv in past)
+                                {
+                                    <tr>
+                                        <td class="fw-medium">@iv.JobDemand?.JobTitle</td>
+                                        <td>@iv.InterviewDate.ToString("dd-MMM-yyyy")</td>
+                                        <td class="small">@(iv.LocationOrLink ?? "TBD")</td>
+                                        <td>
+                                            @if (iv.IsSelected)
+                                            {
+                                                <span class="badge bg-success">Selected</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Pending</span>
+                                            }
+                                        </td>
+                                        <td class="text-muted small">@(iv.Notes ?? "-")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <div class="mt-3">
+        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
+</div>

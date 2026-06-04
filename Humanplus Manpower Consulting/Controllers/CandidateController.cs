@@ -1,8 +1,11 @@
+using HumanPlus.Application.Interfaces;
 using HumanPlus.Domain.Entities.Candidates;
+using HumanPlus.Domain.Entities.Communication;
 using HumanPlus.Domain.Entities.Identity;
 using HumanPlus.Domain.Entities.Jobs;
 using HumanPlus.Domain.Enums;
 using HumanPlus.Infrastructure.Data;
+using Humanplus_Manpower_Consulting.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +18,13 @@ namespace Humanplus_Manpower_Consulting.Controllers
     {
         private readonly HumanPlusDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationService _notificationService;
 
-        public CandidateController(HumanPlusDbContext db, UserManager<ApplicationUser> userManager)
+        public CandidateController(HumanPlusDbContext db, UserManager<ApplicationUser> userManager, INotificationService notificationService)
         {
             _db = db;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -30,12 +35,78 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 .Include(c => c.Educations).ThenInclude(e => e.Qualification)
                 .Include(c => c.Skills).ThenInclude(s => s.Skill)
                 .Include(c => c.Documents)
+                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.UserId == user!.Id);
 
             if (candidate == null)
                 return RedirectToAction(nameof(MyProfile));
 
-            return View(candidate);
+            var applications = await _db.JobApplications
+                .Include(a => a.JobDemand)
+                .Where(a => a.CandidateId == candidate.Id)
+                .OrderByDescending(a => a.AppliedAt)
+                .ToListAsync();
+
+            var interviews = await _db.Interviews
+                .Include(i => i.JobDemand)
+                .Where(i => i.CandidateId == candidate.Id)
+                .OrderByDescending(i => i.InterviewDate)
+                .ToListAsync();
+
+            var placement = await _db.Placements
+                .Include(p => p.JobDemand)
+                .FirstOrDefaultAsync(p => p.CandidateId == candidate.Id);
+
+            var notifications = await _notificationService.GetUserNotificationsAsync(user!.Id, 5);
+            var unreadCount = await _notificationService.GetUnreadCountAsync(user.Id);
+
+            var totalFields = 16;
+            var filledFields = 0;
+            if (!string.IsNullOrWhiteSpace(candidate.FatherName)) filledFields++;
+            if (!string.IsNullOrWhiteSpace(candidate.MotherName)) filledFields++;
+            if (candidate.DateOfBirth != null) filledFields++;
+            if (candidate.MaritalStatus != null) filledFields++;
+            if (!string.IsNullOrWhiteSpace(candidate.AadhaarNumber)) filledFields++;
+            if (!string.IsNullOrWhiteSpace(candidate.CurrentAddress)) filledFields++;
+            if (!string.IsNullOrWhiteSpace(candidate.PermanentAddress)) filledFields++;
+            if (candidate.StateId != null) filledFields++;
+            if (candidate.DistrictId != null) filledFields++;
+            if (!string.IsNullOrWhiteSpace(candidate.PinCode)) filledFields++;
+            if (candidate.PreferredIndustryId != null) filledFields++;
+            if (!string.IsNullOrWhiteSpace(candidate.PreferredLocation)) filledFields++;
+            if (candidate.ExpectedSalary != null) filledFields++;
+            if (candidate.ShiftPreference != null) filledFields++;
+            if (candidate.PreferredEmploymentType != null) filledFields++;
+            if (!string.IsNullOrWhiteSpace(candidate.LanguagesKnown)) filledFields++;
+            var hasSkills = await _db.CandidateSkills.AnyAsync(cs => cs.CandidateId == candidate.Id);
+            var hasEducation = await _db.CandidateEducations.AnyAsync(ce => ce.CandidateId == candidate.Id);
+            if (hasSkills) filledFields++;
+            if (hasEducation) filledFields++;
+            totalFields += 2;
+            if (!candidate.IsFresher)
+            {
+                totalFields += 4;
+                if (candidate.TotalExperienceYears > 0) filledFields++;
+                if (!string.IsNullOrWhiteSpace(candidate.PreviousEmployer)) filledFields++;
+                if (!string.IsNullOrWhiteSpace(candidate.PreviousDesignation)) filledFields++;
+                if (candidate.PreviousSalary > 0) filledFields++;
+            }
+            var pct = totalFields > 0 ? (int)((double)filledFields / totalFields * 100) : 0;
+
+            var vm = new CandidateDashboardViewModel
+            {
+                Candidate = candidate,
+                RecentApplications = applications.Take(3).ToList(),
+                UpcomingInterviews = interviews.Where(i => i.InterviewDate >= DateTime.UtcNow).Take(3).ToList(),
+                Placement = placement,
+                RecentNotifications = notifications,
+                UnreadNotificationCount = unreadCount,
+                ProfileCompletionPercent = pct,
+                TotalApplications = applications.Count,
+                TotalInterviews = interviews.Count
+            };
+
+            return View(vm);
         }
 
         [HttpGet]
@@ -59,7 +130,7 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveProfile(Candidate model, List<int> SelectedSkillIds, List<CandidateEducation> Educations, List<CandidateExperience> Experiences)
+        public async Task<IActionResult> SaveProfile(Candidate model, List<int> SelectedSkillIds, List<CandidateEducation> Educations, List<CandidateExperience> Experiences, IFormFile? ProfileImage)
         {
             var user = await _userManager.GetUserAsync(User);
             var existing = await _db.Candidates
@@ -75,6 +146,7 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 _db.Candidates.Add(model);
                 await _db.SaveChangesAsync();
                 existing = model;
+                TempData["ShowProfileCreatedModal"] = true;
             }
             else
             {
@@ -104,12 +176,31 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 existing.WillingToRelocate = model.WillingToRelocate;
                 existing.ShiftPreference = model.ShiftPreference;
                 existing.PreferredEmploymentType = model.PreferredEmploymentType;
+                existing.LanguagesKnown = model.LanguagesKnown;
                 existing.UpdatedAt = DateTime.UtcNow;
+                TempData["ShowProfileUpdatedModal"] = true;
             }
 
             await _db.SaveChangesAsync();
 
             var candidateId = existing?.Id ?? model.Id;
+
+            if (ProfileImage != null && ProfileImage.Length > 0)
+            {
+                var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles", candidateId.ToString());
+                Directory.CreateDirectory(uploadsDir);
+                var ext = Path.GetExtension(ProfileImage.FileName);
+                var fileName = $"photo_{DateTime.UtcNow:yyyyMMddHHmmss}{ext}";
+                var filePath = Path.Combine(uploadsDir, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ProfileImage.CopyToAsync(stream);
+                }
+                var dbPath = $"/uploads/profiles/{candidateId}/{fileName}";
+                if (existing != null) existing.ProfileImagePath = dbPath;
+                else model.ProfileImagePath = dbPath;
+                await _db.SaveChangesAsync();
+            }
 
             if (SelectedSkillIds != null)
             {
@@ -141,6 +232,39 @@ namespace Humanplus_Manpower_Consulting.Controllers
             }
 
             await _db.SaveChangesAsync();
+
+            var candidate = existing ?? model;
+            var hasSkills = await _db.CandidateSkills.AnyAsync(cs => cs.CandidateId == candidate.Id);
+            var hasEducation = await _db.CandidateEducations.AnyAsync(ce => ce.CandidateId == candidate.Id);
+
+            candidate.IsProfileComplete =
+                !string.IsNullOrWhiteSpace(candidate.FatherName) &&
+                !string.IsNullOrWhiteSpace(candidate.MotherName) &&
+                candidate.DateOfBirth != null &&
+                candidate.MaritalStatus != null &&
+                !string.IsNullOrWhiteSpace(candidate.AadhaarNumber) &&
+                !string.IsNullOrWhiteSpace(candidate.CurrentAddress) &&
+                !string.IsNullOrWhiteSpace(candidate.PermanentAddress) &&
+                candidate.StateId != null &&
+                candidate.DistrictId != null &&
+                !string.IsNullOrWhiteSpace(candidate.PinCode) &&
+                candidate.PreferredIndustryId != null &&
+                !string.IsNullOrWhiteSpace(candidate.PreferredLocation) &&
+                candidate.ExpectedSalary != null &&
+                candidate.ShiftPreference != null &&
+                candidate.PreferredEmploymentType != null &&
+                !string.IsNullOrWhiteSpace(candidate.LanguagesKnown) &&
+                hasSkills && hasEducation &&
+                (candidate.IsFresher || (
+                    candidate.TotalExperienceYears > 0 &&
+                    !string.IsNullOrWhiteSpace(candidate.PreviousEmployer) &&
+                    !string.IsNullOrWhiteSpace(candidate.PreviousDesignation) &&
+                    candidate.PreviousSalary > 0 &&
+                    candidate.PreviousIndustryId != null
+                ));
+
+            await _db.SaveChangesAsync();
+
             TempData["Success"] = "Profile saved successfully.";
             return RedirectToAction(nameof(MyProfile));
         }
@@ -219,6 +343,52 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
             TempData["Success"] = "Document uploaded successfully.";
             return RedirectToAction(nameof(Documents));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationStatus()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var candidate = await _db.Candidates.FirstOrDefaultAsync(c => c.UserId == user!.Id);
+            if (candidate == null) return RedirectToAction(nameof(MyProfile));
+
+            var applications = await _db.JobApplications
+                .Include(a => a.JobDemand)
+                .Where(a => a.CandidateId == candidate.Id)
+                .OrderByDescending(a => a.AppliedAt)
+                .ToListAsync();
+
+            return View(applications);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> InterviewSchedule()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var candidate = await _db.Candidates.FirstOrDefaultAsync(c => c.UserId == user!.Id);
+            if (candidate == null) return RedirectToAction(nameof(MyProfile));
+
+            var interviews = await _db.Interviews
+                .Include(i => i.JobDemand)
+                .Where(i => i.CandidateId == candidate.Id)
+                .OrderByDescending(i => i.InterviewDate)
+                .ToListAsync();
+
+            return View(interviews);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PlacementStatus()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var candidate = await _db.Candidates.FirstOrDefaultAsync(c => c.UserId == user!.Id);
+            if (candidate == null) return RedirectToAction(nameof(MyProfile));
+
+            var placement = await _db.Placements
+                .Include(p => p.JobDemand)
+                .FirstOrDefaultAsync(p => p.CandidateId == candidate.Id);
+
+            return View(placement);
         }
 
         public async Task<IActionResult> Apply(int jobDemandId)

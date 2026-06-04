@@ -5,13 +5,24 @@
 }
 
 <div class="container py-4">
-    <h2><i class="bi bi-file-earmark-text"></i> My Documents</h2>
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="mb-0"><i class="bi bi-file-earmark-text"></i> My Documents</h2>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
     <hr />
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     }
+
+    <div class="mb-4">
+        <a asp-controller="Document" asp-action="DownloadRegistrationForm"
+           class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="bi bi-download me-1"></i> Download Filled Application Form
+        </a>
+        <small class="d-block text-muted mt-1">Take this form to the office for registration &amp; fee payment.</small>
+    </div>
 
     <div class="card shadow-sm mb-4">
         <div class="card-header">Upload Document</div>
@@ -29,6 +40,7 @@
                             <option value="Experience">Experience Certificate</option>
                             <option value="PAN">PAN Card</option>
                             <option value="DrivingLicense">Driving License</option>
+                            <option value="Declaration">Candidate Declaration</option>
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -42,7 +54,60 @@
         </div>
     </div>
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="declaration" required />
+                <label class="form-check-label fw-medium" for="declaration">
+                    I hereby declare that the information provided by me is true and correct.
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end mb-4">
+        <button type="button" class="btn btn-primary rounded-pill px-5" id="saveDocumentsBtn">
+            <i class="bi bi-check-lg me-1"></i>Save
+        </button>
+    </div>
+
+    @* Validation Error Modal *@
+    <div class="modal fade" id="docValidationModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Documents Incomplete</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3" id="docValidationBody"></div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                    <button type="button" class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Success Modal *@
+    <div class="modal fade" id="docSuccessModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Success</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-check-circle text-success display-4 mb-2 d-block"></i>
+                    <h5 class="fw-bold">Documents Saved!</h5>
+                    <p class="text-muted mb-0">All required documents are uploaded and declaration is confirmed.</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                    <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
         <div class="card-header">Uploaded Documents</div>
         <div class="card-body">
             @if (!Model.Any())
@@ -57,7 +122,7 @@
                             <th>Type</th>
                             <th>File</th>
                             <th>Uploaded</th>
-                            <th>Verified</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,11 +135,11 @@
                                 <td>
                                     @if (doc.IsVerified)
                                     {
-                                        <span class="badge bg-success">Verified</span>
+                                        <span class="badge bg-success-subtle text-success rounded-pill"><i class="bi bi-check-circle me-1"></i>Verified</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-warning">Pending</span>
+                                        <span class="badge bg-warning-subtle text-warning rounded-pill"><i class="bi bi-clock me-1"></i>Pending</span>
                                     }
                                 </td>
                             </tr>
@@ -85,3 +150,27 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('saveDocumentsBtn').addEventListener('click', function () {
+            var errors = [];
+            var hasAadhaar = false, hasPolice = false;
+            document.querySelectorAll('.table tbody tr').forEach(function (row) {
+                var type = row.querySelector('td:first-child')?.textContent.trim();
+                if (type === 'Aadhaar') hasAadhaar = true;
+                if (type === 'PoliceVerification') hasPolice = true;
+            });
+            if (!hasAadhaar) errors.push('Aadhaar Card');
+            if (!hasPolice) errors.push('Police Verification');
+            var decl = document.getElementById('declaration');
+            if (!decl || !decl.checked) errors.push('Accept the declaration');
+            if (errors.length > 0) {
+                document.getElementById('docValidationBody').innerHTML = '<p class="fw-medium">Please complete the following before saving:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                new bootstrap.Modal(document.getElementById('docValidationModal')).show();
+            } else {
+                new bootstrap.Modal(document.getElementById('docSuccessModal')).show();
+            }
+        });
+    </script>
+}

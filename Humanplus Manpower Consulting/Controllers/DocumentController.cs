@@ -29,6 +29,14 @@ namespace Humanplus_Manpower_Consulting.Controllers
             var user = await _userManager.GetUserAsync(User);
             var candidate = await _db.Candidates
                 .Include(c => c.User)
+                .Include(c => c.State)
+                .Include(c => c.District)
+                .Include(c => c.PreferredIndustry)
+                .Include(c => c.PreviousIndustry)
+                .Include(c => c.Educations).ThenInclude(e => e.Qualification)
+                .Include(c => c.Skills).ThenInclude(s => s.Skill)
+                .Include(c => c.Experiences)
+                .Include(c => c.Documents)
                 .FirstOrDefaultAsync(c => c.UserId == user!.Id);
 
             if (candidate == null)

@@ -1,0 +1,73 @@
+@using HumanPlus.Domain.Entities.Jobs
+@using HumanPlus.Domain.Enums
+@model List<JobApplication>
+@{
+    ViewData["Title"] = "Application Status";
+}
+
+<div class="container py-4">
+    <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill mb-3"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-list-check"></i> Application Status</h2>
+        <a asp-action="JobOpportunities" class="btn btn-outline-primary rounded-pill"><i class="bi bi-search"></i> Browse Jobs</a>
+    </div>
+    <hr />
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> You haven't applied to any jobs yet.
+            <a asp-action="JobOpportunities" class="alert-link">Browse job opportunities</a> to get started.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Applied On</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var app in Model)
+                            {
+                                <tr>
+                                    <td class="fw-medium">@app.JobDemand?.JobTitle</td>
+                                    <td>@app.JobDemand?.Employer?.CompanyName</td>
+                                    <td>@app.AppliedAt.ToString("dd-MMM-yyyy")</td>
+                                    <td>
+                                        @{
+                                            var statusBadge = app.Status switch
+                                            {
+                                                CandidateStatus.NewRegistration => "secondary",
+                                                CandidateStatus.PendingVerification => "secondary",
+                                                CandidateStatus.Verified => "info",
+                                                CandidateStatus.Active => "success",
+                                                CandidateStatus.Shortlisted => "primary",
+                                                CandidateStatus.InterviewScheduled => "warning",
+                                                CandidateStatus.Selected => "success",
+                                                CandidateStatus.Placed => "primary",
+                                                CandidateStatus.Inactive => "secondary",
+                                                CandidateStatus.Rejected => "danger",
+                                                _ => "secondary"
+                                            };
+                                        }
+                                        <span class="badge bg-@statusBadge">@app.Status</span>
+                                    </td>
+                                    <td class="text-muted small">@(app.Notes ?? "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

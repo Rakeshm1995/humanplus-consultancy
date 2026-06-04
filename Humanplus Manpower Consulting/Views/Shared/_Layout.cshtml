@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using HumanPlus.Domain.Entities.Identity
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@{ var currentUser = await UserManager.GetUserAsync(User); }
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -35,15 +39,20 @@
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle"></i> @User.Identity.Name
+                                    <i class="bi bi-person-circle"></i> @(currentUser?.PhoneNumber ?? User.Identity.Name)
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     @if (User.IsInRole("JobSeeker"))
                                     {
                                         <li><a class="dropdown-item" asp-controller="Candidate" asp-action="Dashboard">Dashboard</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="MyProfile">My Profile</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="Documents">Documents</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="MyProfile">View / Edit Profile</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="Documents">Upload Documents</a></li>
                                         <li><a class="dropdown-item" asp-controller="Candidate" asp-action="JobOpportunities">Job Opportunities</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="ApplicationStatus">Application Status</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="InterviewSchedule">Interview Schedule</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Candidate" asp-action="PlacementStatus">Placement Status</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Notification" asp-action="Index">Notifications</a></li>
                                     }
                                     else if (User.IsInRole("Employer"))
                                     {

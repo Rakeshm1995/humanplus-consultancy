@@ -51,6 +51,14 @@ namespace Humanplus_Manpower_Consulting.Controllers
             {
                 user.LastLoginAt = DateTime.UtcNow;
                 await _userManager.UpdateAsync(user);
+
+                if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    return RedirectToAction("Dashboard", "Admin");
+                if (await _userManager.IsInRoleAsync(user, "JobSeeker"))
+                    return RedirectToAction("Dashboard", "Candidate");
+                if (await _userManager.IsInRoleAsync(user, "Employer"))
+                    return RedirectToAction("Dashboard", "Employer");
+
                 return RedirectToLocal(returnUrl);
             }
 

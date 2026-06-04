@@ -1,22 +1,78 @@
 @using HumanPlus.Domain.Entities.Candidates
+@using HumanPlus.Domain.Entities.Jobs
 @using HumanPlus.Domain.Enums
 @model List<Candidate>
 @{
-    ViewData["Title"] = "Manage Candidates";
+    ViewData["Title"] = "Job Seeker Management";
+
+    var total = Model.Count;
+    var active = Model.Count(c => c.Status == CandidateStatus.Active);
+    var pendingVerif = Model.Count(c => c.Status == CandidateStatus.PendingVerification);
+    var pendingReg = Model.Count(c => c.Status == CandidateStatus.NewRegistration);
+    var placed = Model.Count(c => c.Status == CandidateStatus.Placed);
+    var rejected = Model.Count(c => c.Status == CandidateStatus.Rejected);
 }
 
-<div class="container py-4">
-    <h2><i class="bi bi-people"></i> Candidate Management</h2>
-    <hr />
+<div class="container-fluid px-4 py-4">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-    }
+    @* Page Header *@
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-teal"></i>Job Seeker Management</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Job Seekers</li>
+                </ol>
+            </nav>
+        </div>
+        <a asp-action="Candidates" class="btn btn-outline-teal rounded-pill btn-sm"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</a>
+    </div>
 
-    <form method="get" class="row g-2 mb-3">
-        <div class="col-md-3">
-            <select name="status" class="form-select" onchange="this.form.submit()">
+    @* Stat Cards *@
+    <div class="row g-2 mb-4">
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2 text-center bg-light">
+                <div class="fw-bold fs-5 text-teal">@Model.Count</div>
+                <div class="small text-muted">Total</div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2 text-center bg-light">
+                <div class="fw-bold fs-5 text-success">@active</div>
+                <div class="small text-muted">Active</div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2 text-center bg-light">
+                <div class="fw-bold fs-5 text-warning">@pendingVerif</div>
+                <div class="small text-muted">Pending Verif.</div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2 text-center bg-light">
+                <div class="fw-bold fs-5 text-info">@pendingReg</div>
+                <div class="small text-muted">New Reg.</div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2 text-center bg-light">
+                <div class="fw-bold fs-5 text-primary">@placed</div>
+                <div class="small text-muted">Placed</div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-2 text-center bg-light">
+                <div class="fw-bold fs-5 text-danger">@rejected</div>
+                <div class="small text-muted">Rejected</div>
+            </div>
+        </div>
+    </div>
+
+    @* Search & Filter *@
+    <form method="get" class="row g-2 mb-3 align-items-end">
+        <div class="col-md-2">
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                 <option value="">All Statuses</option>
                 @foreach (var s in (CandidateStatus[])ViewBag.CandidateStatuses)
                 {
@@ -24,61 +80,432 @@
                 }
             </select>
         </div>
-        <div class="col-md-5">
-            <input type="text" name="search" class="form-control" placeholder="Search by name, email, Aadhaar..." value="@ViewBag.Search" />
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search name, email, Aadhaar..." value="@ViewBag.Search" />
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Search</button>
+            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-search me-1"></i>Search</button>
         </div>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile</th>
-                    <th>Status</th>
-                    <th>Fee</th>
-                    <th>Profile</th>
-                    <th>Registered</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var c in Model)
-                {
-                    <tr>
-                        <td>@c.User?.FullName</td>
-                        <td>@c.User?.Email</td>
-                        <td>@c.User?.PhoneNumber</td>
-                        <td>
-                            <span class="badge bg-@(c.Status switch {
-                                CandidateStatus.Active => "success",
-                                CandidateStatus.PendingVerification => "warning",
-                                CandidateStatus.Rejected => "danger",
-                                CandidateStatus.Placed => "info",
-                                _ => "secondary"
-                            })">@c.Status</span>
-                        </td>
-                        <td>@(c.IsFeePaid ? "Paid" : "Unpaid")</td>
-                        <td>@(c.IsProfileComplete ? "Complete" : "Incomplete")</td>
-                        <td>@c.CreatedAt.ToString("dd-MMM-yy")</td>
-                        <td>
-                            <form asp-action="UpdateCandidateStatus" method="post" class="d-inline">
-                                <input type="hidden" name="candidateId" value="@c.Id" />
-                                <select name="newStatus" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                                    @foreach (var s in (CandidateStatus[])ViewBag.CandidateStatuses)
+    @* Candidates Table *@
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-3">Name</th>
+                            <th class="py-3">Email / Phone</th>
+                            <th class="py-3">Status</th>
+                            <th class="text-center py-3">Docs</th>
+                            <th class="text-center py-3">Fee</th>
+                            <th class="text-center py-3">Profile</th>
+                            <th class="text-center py-3">Visited</th>
+                            <th class="text-center py-3">Placements</th>
+                            <th class="py-3">Registered</th>
+                            <th class="text-center py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model)
+                        {
+                            var verifiedDocs = c.Documents?.Count(d => d.IsVerified) ?? 0;
+                            var totalDocs = c.Documents?.Count ?? 0;
+                            var placementsCount = c.Placements?.Count ?? 0;
+                            <tr>
+                                <td class="px-3">
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(c.ProfileImagePath))
+                                        {
+                                            <img src="@c.ProfileImagePath" class="rounded-circle me-2 border" style="width:28px;height:28px;object-fit:cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-soft-teal d-flex align-items-center justify-content-center me-2" style="width:28px;height:28px;">
+                                                <i class="bi bi-person text-teal small"></i>
+                                            </div>
+                                        }
+                                        <span class="fw-medium">@c.User?.FullName</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>@c.User?.Email</div>
+                                    <div class="text-muted">@c.User?.PhoneNumber</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(c.Status switch {
+                                        CandidateStatus.Active => "success",
+                                        CandidateStatus.PendingVerification => "warning text-dark",
+                                        CandidateStatus.Rejected => "danger",
+                                        CandidateStatus.Placed => "info",
+                                        CandidateStatus.Inactive => "secondary",
+                                        _ => "secondary"
+                                    }) rounded-pill px-3">@c.Status</span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="#" class="text-decoration-none view-docs" data-candidate-id="@c.Id" title="View documents">
+                                        @if (verifiedDocs == totalDocs && totalDocs > 0)
+                                        {
+                                            <span class="badge bg-success-subtle text-success rounded-pill">@verifiedDocs/@totalDocs</span>
+                                        }
+                                        else if (totalDocs > 0)
+                                        {
+                                            <span class="badge bg-warning-subtle text-warning rounded-pill">@verifiedDocs/@totalDocs</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    @if (c.IsFeePaid)
                                     {
-                                        <option value="@s" selected="@(c.Status == s)">@s</option>
+                                        <form asp-action="MarkFeePaid" method="post" class="d-inline">
+                                            <input type="hidden" name="candidateId" value="@c.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-0" data-confirm="Mark fee as unpaid for this candidate?" title="Mark as unpaid">
+                                                <i class="bi bi-currency-rupee"></i>
+                                            </button>
+                                        </form>
                                     }
-                                </select>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                                    else
+                                    {
+                                        <form asp-action="MarkFeePaid" method="post" class="d-inline">
+                                            <input type="hidden" name="candidateId" value="@c.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" data-confirm="Mark fee as paid for this candidate?">
+                                                <i class="bi bi-currency-rupee"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (c.IsProfileComplete)
+                                    {
+                                        <span class="badge bg-success-subtle text-success rounded-pill"><i class="bi bi-check"></i>Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill">No</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (c.IsOfficeVisited)
+                                    {
+                                        <form asp-action="MarkOfficeVisited" method="post" class="d-inline">
+                                            <input type="hidden" name="candidateId" value="@c.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-0" data-confirm="Mark office as not visited for this candidate?" title="Mark as not visited">
+                                                <i class="bi bi-building"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="MarkOfficeVisited" method="post" class="d-inline">
+                                            <input type="hidden" name="candidateId" value="@c.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-info rounded-pill px-2 py-0" data-confirm="Confirm office visit for this candidate?">
+                                                <i class="bi bi-building"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (placementsCount > 0)
+                                    {
+                                        <a href="#" class="text-decoration-none view-placements fw-medium" data-candidate-id="@c.Id" data-candidate-name="@c.User?.FullName">
+                                            @placementsCount
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">0</span>
+                                    }
+                                </td>
+                                <td class="small">@c.CreatedAt.ToString("dd-MMM-yy")</td>
+                                <td class="text-center">
+                                    <div class="d-flex flex-wrap gap-1 justify-content-center" style="min-width:180px;">
+
+                                        @* Approve / Reject *@
+                                        @if (c.Status == CandidateStatus.NewRegistration || c.Status == CandidateStatus.PendingVerification || c.Status == CandidateStatus.Rejected)
+                                        {
+                                            <form asp-action="ApproveCandidate" method="post" class="d-inline">
+                                                <input type="hidden" name="candidateId" value="@c.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" title="Approve" data-confirm="Approve this candidate?">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (c.Status != CandidateStatus.Rejected && c.Status != CandidateStatus.Inactive && c.Status != CandidateStatus.Placed)
+                                        {
+                                            <form asp-action="RejectCandidate" method="post" class="d-inline">
+                                                <input type="hidden" name="candidateId" value="@c.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" title="Reject" data-confirm="Reject this candidate?">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @* Activate / Deactivate *@
+                                        @if (c.Status == CandidateStatus.Active)
+                                        {
+                                            <form asp-action="ToggleCandidateActive" method="post" class="d-inline">
+                                                <input type="hidden" name="candidateId" value="@c.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" title="Deactivate" data-confirm="Deactivate this candidate?">
+                                                    <i class="bi bi-pause-circle"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        else if (c.Status == CandidateStatus.Inactive)
+                                        {
+                                            <form asp-action="ToggleCandidateActive" method="post" class="d-inline">
+                                                <input type="hidden" name="candidateId" value="@c.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" title="Activate" data-confirm="Activate this candidate?">
+                                                    <i class="bi bi-play-circle"></i>
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @* View Documents *@
+                                        <button type="button" class="btn btn-sm btn-outline-teal rounded-pill px-2 py-0 view-docs" data-candidate-id="@c.Id" title="Documents">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        </button>
+
+                                        @* Assign to Job *@
+                                        <button type="button" class="btn btn-sm btn-outline-indigo rounded-pill px-2 py-0 assign-job" data-candidate-id="@c.Id" data-candidate-name="@c.User?.FullName" title="Assign to Job">
+                                            <i class="bi bi-briefcase"></i>
+                                        </button>
+
+                                        @* Download Profile *@
+                                        <a asp-action="DownloadCandidateProfile" asp-route-id="@c.Id" class="btn btn-sm btn-outline-purple rounded-pill px-2 py-0" title="Download Profile" target="_blank">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+
+                                        @* Placements *@
+                                        <button type="button" class="btn btn-sm btn-outline-rose rounded-pill px-2 py-0 view-placements" data-candidate-id="@c.Id" data-candidate-name="@c.User?.FullName" title="Placements">
+                                            <i class="bi bi-award"></i>
+                                        </button>
+
+                                        @* Status Dropdown *@
+                                        <div class="dropdown d-inline">
+                                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Change Status">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end small py-1" style="min-width:140px;max-height:250px;overflow-y:auto;">
+                                                @foreach (var s in (CandidateStatus[])ViewBag.CandidateStatuses)
+                                                {
+                                                    <li>
+                                                        <form asp-action="UpdateCandidateStatus" method="post" class="d-inline">
+                                                            <input type="hidden" name="candidateId" value="@c.Id" />
+                                                            <input type="hidden" name="newStatus" value="@s" />
+                                                            <button type="submit" class="dropdown-item py-1 @(c.Status == s ? "active" : "")" data-confirm="Change status to @(s)?">@s</button>
+                                                        </form>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    <span>No job seekers found</span>
+                </div>
+            }
+        </div>
     </div>
 </div>
+
+@* Assign to Job Modal *@
+<div class="modal fade" id="assignModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form asp-action="AssignToJob" method="post">
+                <div class="modal-header bg-indigo text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-briefcase me-2"></i>Assign to Job</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="candidateId" id="assignCandidateId" />
+                    <p class="mb-2">Assigning: <strong id="assignCandidateName"></strong></p>
+                    <label class="form-label">Select Job Demand</label>
+                    <select name="jobDemandId" class="form-select" required>
+                        <option value="">— Choose —</option>
+                        @if (ViewBag.ActiveDemands != null)
+                        {
+                            foreach (var d in (List<JobDemand>)ViewBag.ActiveDemands)
+                            {
+                                <option value="@d.Id">@d.JobTitle — @d.Employer?.CompanyName (@d.NumberOfOpenings openings)</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-indigo rounded-pill px-4"><i class="bi bi-check-lg me-1"></i>Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* Document Verification Modal *@
+<div class="modal fade" id="docsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div id="docsModalContent">
+                <div class="text-center py-5"><div class="spinner-border text-teal"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Placement History Modal *@
+<div class="modal fade" id="placementsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div id="placementsModalContent">
+                <div class="text-center py-5"><div class="spinner-border text-purple"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Confirmation Modal *@
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark border-0">
+                <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Action</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-3" id="confirmMessage"></div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning rounded-pill px-4" id="confirmBtn">Yes, Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Success / Error Modals *@
+@if (TempData["Success"] != null)
+{
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Success</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-3">
+                    <i class="bi bi-check-circle text-success display-4 mb-2 d-block"></i>
+                    <p class="mb-0">@TempData["Success"]</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0">
+                    <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="modal fade" id="errorModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-exclamation-circle-fill me-2"></i>Error</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-3">
+                    <i class="bi bi-exclamation-circle text-danger display-4 mb-2 d-block"></i>
+                    <p class="mb-0">@TempData["Error"]</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0">
+                    <button type="button" class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Confirmation modal
+        var pendingForm = null;
+        document.querySelectorAll('[data-confirm]').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                pendingForm = this.closest('form');
+                document.getElementById('confirmMessage').innerHTML = '<p class="mb-0 fw-medium">' + this.dataset.confirm + '</p>';
+                new bootstrap.Modal(document.getElementById('confirmModal')).show();
+            });
+        });
+        document.getElementById('confirmBtn').addEventListener('click', function () {
+            if (pendingForm) pendingForm.submit();
+        });
+
+        // Assign to Job modal
+        document.querySelectorAll('.assign-job').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.getElementById('assignCandidateId').value = this.dataset.candidateId;
+                document.getElementById('assignCandidateName').textContent = this.dataset.candidateName;
+                new bootstrap.Modal(document.getElementById('assignModal')).show();
+            });
+        });
+
+        // View Documents modal
+        document.querySelectorAll('.view-docs').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                var id = this.dataset.candidateId;
+                var content = document.getElementById('docsModalContent');
+                content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-teal"></div></div>';
+                var modal = new bootstrap.Modal(document.getElementById('docsModal'));
+                modal.show();
+                fetch('/Admin/CandidateDocuments/' + id)
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) { content.innerHTML = html; })
+                    .catch(function () { content.innerHTML = '<div class="p-4 text-danger text-center">Failed to load documents</div>'; });
+            });
+        });
+
+        // View Placements modal
+        document.querySelectorAll('.view-placements').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                var id = this.dataset.candidateId;
+                var content = document.getElementById('placementsModalContent');
+                content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-purple"></div></div>';
+                var modal = new bootstrap.Modal(document.getElementById('placementsModal'));
+                modal.show();
+                fetch('/Admin/CandidatePlacements/' + id)
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) { content.innerHTML = html; })
+                    .catch(function () { content.innerHTML = '<div class="p-4 text-danger text-center">Failed to load placements</div>'; });
+            });
+        });
+    </script>
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            });
+        </script>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                new bootstrap.Modal(document.getElementById('errorModal')).show();
+            });
+        </script>
+    }
+}

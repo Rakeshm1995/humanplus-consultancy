@@ -1,0 +1,13 @@
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\bin\Debug\net8.0\HumanPlus.Domain.deps.json
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\bin\Debug\net8.0\HumanPlus.Domain.dll
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\bin\Debug\net8.0\HumanPlus.Domain.pdb
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.csproj.AssemblyReference.cache
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.AssemblyInfoInputs.cache
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.AssemblyInfo.cs
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.csproj.CoreCompileInputs.cache
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.sourcelink.json
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.dll
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\refint\HumanPlus.Domain.dll
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\HumanPlus.Domain.pdb
+D:\Humanplus Manpower Consulting\Humanplus Manpower Consulting\HumanPlus.Domain\obj\Debug\net8.0\ref\HumanPlus.Domain.dll

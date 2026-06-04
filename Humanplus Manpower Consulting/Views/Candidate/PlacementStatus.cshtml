@@ -1,0 +1,93 @@
+@using HumanPlus.Domain.Entities.Jobs
+@model Placement?
+@{
+    ViewData["Title"] = "Placement Status";
+}
+
+<div class="container py-4">
+    <h2><i class="bi bi-trophy"></i> Placement Status</h2>
+    <hr />
+
+    @if (Model == null)
+    {
+        <div class="row g-4">
+            <div class="col-md-8 mx-auto text-center">
+                <div class="card shadow-sm border-0 p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-clock-history text-muted" style="font-size:4rem;"></i>
+                    </div>
+                    <h4 class="fw-bold text-muted">No Placement Yet</h4>
+                    <p class="text-muted">
+                        You haven't been placed yet. Keep applying to jobs, attend interviews,
+                        and track your progress on the dashboard.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a asp-action="JobOpportunities" class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-search"></i> Browse Jobs
+                        </a>
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill px-4">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow-sm border-success border-2">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-trophy-fill text-success" style="font-size:4rem;"></i>
+                        </div>
+                        <h3 class="fw-bold text-success">Congratulations!</h3>
+                        <p class="text-muted">You have been placed successfully.</p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> Placement Details</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-medium text-muted" style="width:160px;">Job Title</td>
+                                <td>@Model.JobDemand?.JobTitle</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium text-muted">Company</td>
+                                <td>@Model.JobDemand?.Employer?.CompanyName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium text-muted">Placement Date</td>
+                                <td>@Model.PlacementDate.ToString("dddd, dd MMMM yyyy")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium text-muted">Salary Offered</td>
+                                <td><i class="bi bi-currency-rupee"></i> @(Model.SalaryOffered?.ToString("N0") ?? "N/A")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium text-muted">Joining Date</td>
+                                <td>@(Model.JoiningDate?.ToString("dddd, dd MMMM yyyy") ?? "TBD")</td>
+                            </tr>
+                            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                            {
+                                <tr>
+                                    <td class="fw-medium text-muted">Notes</td>
+                                    <td>@Model.Notes</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-center">
+                    <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

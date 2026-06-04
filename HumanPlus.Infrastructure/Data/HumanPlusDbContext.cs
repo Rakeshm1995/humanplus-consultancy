@@ -238,7 +238,7 @@ namespace HumanPlus.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
 
                 e.HasOne(p => p.Candidate)
-                    .WithMany()
+                    .WithMany(c => c.Placements)
                     .HasForeignKey(p => p.CandidateId)
                     .OnDelete(DeleteBehavior.Restrict);
             });

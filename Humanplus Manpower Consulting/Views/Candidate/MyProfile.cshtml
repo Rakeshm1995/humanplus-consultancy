@@ -7,145 +7,307 @@
 }
 
 <div class="container py-4">
-    <h2><i class="bi bi-person-badge"></i> My Profile</h2>
-    <hr />
-    <form asp-action="SaveProfile" method="post">
-        <div class="row g-3">
-            <h5 class="mt-3">Personal Information</h5>
-            <div class="col-md-4">
-                <label class="form-label">Father's Name</label>
-                <input asp-for="FatherName" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Mother's Name</label>
-                <input asp-for="MotherName" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Gender</label>
-                <select asp-for="Gender" asp-items="Html.GetEnumSelectList<Gender>()" class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Date of Birth</label>
-                <input asp-for="DateOfBirth" type="date" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Marital Status</label>
-                <select asp-for="MaritalStatus" asp-items="Html.GetEnumSelectList<MaritalStatus>()" class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Blood Group</label>
-                <input asp-for="BloodGroup" class="form-control" placeholder="e.g. A+" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Aadhaar Number</label>
-                <input asp-for="AadhaarNumber" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">PAN Number</label>
-                <input asp-for="PanNumber" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Alternate Mobile</label>
-                <input asp-for="AlternateMobile" class="form-control" />
-            </div>
-
-            <h5 class="mt-3">Address</h5>
-            <div class="col-12">
-                <label class="form-label">Current Address</label>
-                <textarea asp-for="CurrentAddress" class="form-control" rows="2"></textarea>
-            </div>
-            <div class="col-12">
-                <label class="form-label">Permanent Address</label>
-                <textarea asp-for="PermanentAddress" class="form-control" rows="2"></textarea>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">State</label>
-                <select asp-for="StateId" asp-items='new SelectList(ViewBag.States, "Id", "Name")' class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">District</label>
-                <select asp-for="DistrictId" asp-items='new SelectList(ViewBag.Districts, "Id", "Name")' class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">PIN Code</label>
-                <input asp-for="PinCode" class="form-control" />
-            </div>
-
-            <h5 class="mt-3">Experience</h5>
-            <div class="col-md-3">
-                <div class="form-check mt-2">
-                    <input asp-for="IsFresher" class="form-check-input" />
-                    <label class="form-check-label">I am a Fresher</label>
+    @if (TempData["ShowProfileCreatedModal"] != null)
+    {
+        <div class="modal fade" id="profileCreatedModal" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-success text-white border-0">
+                        <h6 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Success</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <i class="bi bi-check-circle text-success display-4 mb-2 d-block"></i>
+                        <h5 class="fw-bold">Profile Created!</h5>
+                        <p class="text-muted mb-0">Your profile has been created successfully.</p>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                        <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Total Experience (Years)</label>
-                <input asp-for="TotalExperienceYears" class="form-control" type="number" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Previous Employer</label>
-                <input asp-for="PreviousEmployer" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Previous Designation</label>
-                <input asp-for="PreviousDesignation" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Previous Salary</label>
-                <input asp-for="PreviousSalary" class="form-control" type="number" step="0.01" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Previous Industry</label>
-                <select asp-for="PreviousIndustryId" asp-items='new SelectList(ViewBag.Industries, "Id", "Name")' class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
+        </div>
+    }
 
-            <h5 class="mt-3">Job Preferences</h5>
-            <div class="col-md-4">
-                <label class="form-label">Preferred Industry</label>
-                <select asp-for="PreferredIndustryId" asp-items='new SelectList(ViewBag.Industries, "Id", "Name")' class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Preferred Location</label>
-                <input asp-for="PreferredLocation" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Expected Salary</label>
-                <input asp-for="ExpectedSalary" class="form-control" type="number" step="0.01" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Shift Preference</label>
-                <select asp-for="ShiftPreference" asp-items="Html.GetEnumSelectList<ShiftPreference>()" class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Employment Type</label>
-                <select asp-for="PreferredEmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">&nbsp;</label>
-                <div class="form-check mt-2">
-                    <input asp-for="WillingToRelocate" class="form-check-input" />
-                    <label class="form-check-label">Willing to Relocate</label>
+    @if (TempData["ShowProfileUpdatedModal"] != null)
+    {
+        <div class="modal fade" id="profileUpdatedModal" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-success text-white border-0">
+                        <h6 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Success</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <i class="bi bi-check-circle text-success display-4 mb-2 d-block"></i>
+                        <h5 class="fw-bold">Profile Updated!</h5>
+                        <p class="text-muted mb-0">Your profile has been updated successfully.</p>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                        <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                    </div>
                 </div>
             </div>
+        </div>
+    }
 
-            <h5 class="mt-3">Skills</h5>
-            <div class="col-12">
+    <div class="mb-3">
+        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <form asp-action="SaveProfile" method="post" enctype="multipart/form-data" class="profile-form" id="profileForm">
+
+    @* Validation Error Modal *@
+    <div class="modal fade" id="validationModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Required Fields Missing</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3" id="validationModalBody"></div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                    <button type="button" class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        @* Personal Information *@
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="section-icon rounded-3 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:rgba(14,116,144,0.1);">
+                        <i class="bi bi-person-fill text-teal fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Personal Information</h5>
+                </div>
+                <hr class="mt-0 mb-3" />
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Father's Name <span class="text-danger">*</span></label>
+                        <input asp-for="FatherName" class="form-control" placeholder="Enter father's name" />
+                        <span asp-validation-for="FatherName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Mother's Name <span class="text-danger">*</span></label>
+                        <input asp-for="MotherName" class="form-control" placeholder="Enter mother's name" />
+                        <span asp-validation-for="MotherName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Gender <span class="text-danger">*</span></label>
+                        <select asp-for="Gender" asp-items="Html.GetEnumSelectList<Gender>()" class="form-select">
+                            <option value="">-- Select Gender --</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Date of Birth <span class="text-danger">*</span></label>
+                        <input asp-for="DateOfBirth" type="date" class="form-control" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Marital Status <span class="text-danger">*</span></label>
+                        <select asp-for="MaritalStatus" asp-items="Html.GetEnumSelectList<MaritalStatus>()" class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                        <span asp-validation-for="MaritalStatus" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Blood Group</label>
+                        <input asp-for="BloodGroup" class="form-control" placeholder="e.g. A+" />
+                        <span asp-validation-for="BloodGroup" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Aadhaar Number <span class="text-danger">*</span></label>
+                        <input asp-for="AadhaarNumber" class="form-control" placeholder="Enter 12-digit Aadhaar number" maxlength="12" />
+                        <span asp-validation-for="AadhaarNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Passport Size Photo</label>
+                        <input type="file" name="ProfileImage" class="form-control" accept="image/*" />
+                        @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
+                        {
+                            <img src="@Model.ProfileImagePath" class="mt-2 rounded border" style="width:80px;height:80px;object-fit:cover;" />
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">PAN Number</label>
+                        <input asp-for="PanNumber" class="form-control" placeholder="e.g. ABCDE1234F" maxlength="10" />
+                        <span asp-validation-for="PanNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Alternate Mobile</label>
+                        <input asp-for="AlternateMobile" class="form-control" placeholder="Enter 10-digit mobile number" maxlength="10" />
+                        <span asp-validation-for="AlternateMobile" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Languages Known <span class="text-danger">*</span></label>
+                        <input asp-for="LanguagesKnown" class="form-control" placeholder="e.g. English, Hindi, Odia" />
+                        <span asp-validation-for="LanguagesKnown" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Address *@
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="section-icon rounded-3 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:rgba(14,116,144,0.1);">
+                        <i class="bi bi-geo-alt-fill text-teal fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Address Details</h5>
+                </div>
+                <hr class="mt-0 mb-3" />
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-medium">Current Address <span class="text-danger">*</span></label>
+                        <textarea asp-for="CurrentAddress" class="form-control" rows="2" placeholder="Enter your current address"></textarea>
+                        <span asp-validation-for="CurrentAddress" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="sameAsCurrent" />
+                            <label class="form-check-label fw-medium" for="sameAsCurrent">Same as Current Address</label>
+                        </div>
+                        <label class="form-label fw-medium">Permanent Address <span class="text-danger">*</span></label>
+                        <textarea asp-for="PermanentAddress" class="form-control" rows="2" placeholder="Enter your permanent address"></textarea>
+                        <span asp-validation-for="PermanentAddress" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">State <span class="text-danger">*</span></label>
+                        <select asp-for="StateId" asp-items='new SelectList(ViewBag.States, "Id", "Name")' class="form-select">
+                            <option value="">-- Select State --</option>
+                        </select>
+                        <span asp-validation-for="StateId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">District <span class="text-danger">*</span></label>
+                        <select asp-for="DistrictId" asp-items='new SelectList(ViewBag.Districts, "Id", "Name")' class="form-select">
+                            <option value="">-- Select District --</option>
+                        </select>
+                        <span asp-validation-for="DistrictId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">PIN Code <span class="text-danger">*</span></label>
+                        <input asp-for="PinCode" class="form-control" placeholder="Enter 6-digit PIN code" maxlength="6" />
+                        <span asp-validation-for="PinCode" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Experience *@
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="section-icon rounded-3 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:rgba(14,116,144,0.1);">
+                        <i class="bi bi-briefcase-fill text-teal fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Experience &amp; Previous Employment</h5>
+                </div>
+                <hr class="mt-0 mb-3" />
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="form-check mt-2">
+                            <input asp-for="IsFresher" class="form-check-input" id="isFresher" />
+                            <label class="form-check-label fw-medium" for="isFresher">I am a Fresher</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-medium">Total Experience (Years) <span class="text-danger exp-required">*</span></label>
+                        <input asp-for="TotalExperienceYears" class="form-control" type="number" min="0" placeholder="e.g. 3" />
+                        <span asp-validation-for="TotalExperienceYears" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Previous Employer <span class="text-danger exp-required">*</span></label>
+                        <input asp-for="PreviousEmployer" class="form-control" placeholder="e.g. ABC Corp" />
+                        <span asp-validation-for="PreviousEmployer" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Previous Designation <span class="text-danger exp-required">*</span></label>
+                        <input asp-for="PreviousDesignation" class="form-control" placeholder="e.g. Software Engineer" />
+                        <span asp-validation-for="PreviousDesignation" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Previous Salary (Annual) <span class="text-danger exp-required">*</span></label>
+                        <input asp-for="PreviousSalary" class="form-control" type="number" step="0.01" placeholder="e.g. 500000" />
+                        <span asp-validation-for="PreviousSalary" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Previous Industry <span class="text-danger exp-required">*</span></label>
+                        <select asp-for="PreviousIndustryId" asp-items='new SelectList(ViewBag.Industries, "Id", "Name")' class="form-select">
+                            <option value="">-- Select Industry --</option>
+                        </select>
+                        <span asp-validation-for="PreviousIndustryId" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Job Preferences *@
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="section-icon rounded-3 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:rgba(14,116,144,0.1);">
+                        <i class="bi bi-star-fill text-teal fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Job Preferences</h5>
+                </div>
+                <hr class="mt-0 mb-3" />
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Preferred Industry <span class="text-danger">*</span></label>
+                        <select asp-for="PreferredIndustryId" asp-items='new SelectList(ViewBag.Industries, "Id", "Name")' class="form-select">
+                            <option value="">-- Select Industry --</option>
+                        </select>
+                        <span asp-validation-for="PreferredIndustryId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Preferred Location <span class="text-danger">*</span></label>
+                        <input asp-for="PreferredLocation" class="form-control" placeholder="e.g. Bhubaneswar, Mumbai" />
+                        <span asp-validation-for="PreferredLocation" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Expected Salary (Annual) <span class="text-danger">*</span></label>
+                        <input asp-for="ExpectedSalary" class="form-control" type="number" step="0.01" placeholder="e.g. 600000" />
+                        <span asp-validation-for="ExpectedSalary" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Shift Preference <span class="text-danger">*</span></label>
+                        <select asp-for="ShiftPreference" asp-items="Html.GetEnumSelectList<ShiftPreference>()" class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                        <span asp-validation-for="ShiftPreference" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Employment Type <span class="text-danger">*</span></label>
+                        <select asp-for="PreferredEmploymentType" asp-items="Html.GetEnumSelectList<EmploymentType>()" class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                        <span asp-validation-for="PreferredEmploymentType" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="form-check mt-2">
+                            <input asp-for="WillingToRelocate" class="form-check-input" />
+                            <label class="form-check-label fw-medium">Willing to Relocate</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Skills *@
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="section-icon rounded-3 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:rgba(14,116,144,0.1);">
+                        <i class="bi bi-gear-fill text-teal fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Skills</h5>
+                </div>
+                <hr class="mt-0 mb-3" />
                 <div class="row g-2">
                     @foreach (var skill in (List<Skill>)ViewBag.Skills)
                     {
@@ -159,17 +321,26 @@
                     }
                 </div>
             </div>
+        </div>
 
-            <h5 class="mt-3">Education</h5>
-            <div class="col-12">
-                <table class="table table-bordered" id="educationTable">
+        @* Education *@
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="section-icon rounded-3 d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:rgba(14,116,144,0.1);">
+                        <i class="bi bi-book-fill text-teal fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Education</h5>
+                </div>
+                <hr class="mt-0 mb-3" />
+                <table class="table table-bordered table-hover align-middle" id="educationTable">
                     <thead class="table-light">
                         <tr>
-                            <th>Qualification</th>
-                            <th>Board/University</th>
-                            <th>Passing Year</th>
-                            <th>Percentage/Grade</th>
-                            <th></th>
+                            <th style="width:30%">Qualification</th>
+                            <th style="width:30%">Board / University</th>
+                            <th style="width:15%">Passing Year</th>
+                            <th style="width:15%">Percentage / Grade</th>
+                            <th style="width:10%"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -188,22 +359,27 @@
                                             }
                                         </select>
                                     </td>
-                                    <td><input name="Educations[@i].BoardOrUniversity" value="@edu.BoardOrUniversity" class="form-control" /></td>
-                                    <td><input name="Educations[@i].PassingYear" value="@edu.PassingYear" class="form-control" type="number" /></td>
-                                    <td><input name="Educations[@i].PercentageOrGrade" value="@edu.PercentageOrGrade" class="form-control" /></td>
-                                    <td><button type="button" class="btn btn-danger btn-sm removeRow">&times;</button></td>
+                                    <td><input name="Educations[@i].BoardOrUniversity" value="@edu.BoardOrUniversity" class="form-control" placeholder="Board / University name" /></td>
+                                    <td><input name="Educations[@i].PassingYear" value="@edu.PassingYear" class="form-control" type="number" placeholder="YYYY" /></td>
+                                    <td><input name="Educations[@i].PercentageOrGrade" value="@edu.PercentageOrGrade" class="form-control" placeholder="e.g. 85% or A" /></td>
+                                    <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm removeRow" title="Remove"><i class="bi bi-trash"></i></button></td>
                                 </tr>
                                 i++;
                             }
                         }
                     </tbody>
                 </table>
-                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addEducationRow()">+ Add Education</button>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="addEducationRow()"><i class="bi bi-plus-lg me-1"></i>Add Education</button>
             </div>
+        </div>
 
-            <div class="col-12 mt-4">
-                <button type="submit" class="btn btn-primary px-4">Save Profile</button>
-            </div>
+        @* Submit *@
+        <div class="d-flex justify-content-end gap-2 mb-5">
+            <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+            <button type="submit" class="btn btn-gold rounded-pill px-5" id="saveBtn">
+                <span id="saveSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                <i class="bi bi-check-lg me-1"></i>Save Profile
+            </button>
         </div>
     </form>
 </div>
@@ -221,18 +397,132 @@
                         <option value="@q.Id">@q.Name</option>
                     }
                 </select></td>
-                <td><input name="Educations[${eduIndex}].BoardOrUniversity" class="form-control" /></td>
-                <td><input name="Educations[${eduIndex}].PassingYear" class="form-control" type="number" /></td>
-                <td><input name="Educations[${eduIndex}].PercentageOrGrade" class="form-control" /></td>
-                <td><button type="button" class="btn btn-danger btn-sm removeRow">&times;</button></td>
+                <td><input name="Educations[${eduIndex}].BoardOrUniversity" class="form-control" placeholder="Board / University name" /></td>
+                <td><input name="Educations[${eduIndex}].PassingYear" class="form-control" type="number" placeholder="YYYY" /></td>
+                <td><input name="Educations[${eduIndex}].PercentageOrGrade" class="form-control" placeholder="e.g. 85% or A" /></td>
+                <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm removeRow" title="Remove"><i class="bi bi-trash"></i></button></td>
             </tr>`;
             document.getElementById('educationTable').querySelector('tbody').insertAdjacentHTML('beforeend', row);
             eduIndex++;
         }
         document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('removeRow')) {
+            if (e.target.closest('.removeRow')) {
                 e.target.closest('tr').remove();
             }
         });
+        // Client-side validation for * marked fields
+        document.getElementById('profileForm').addEventListener('submit', function (e) {
+            var errors = [];
+            document.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });
+
+            function checkText(id, label) {
+                var el = document.getElementById(id);
+                if (!el || el.value.trim() === '') { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+            function checkSelect(id, label) {
+                var el = document.getElementById(id);
+                if (!el || el.value === '') { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+            function checkNumber(id, label) {
+                var el = document.getElementById(id);
+                if (!el || parseFloat(el.value) <= 0) { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+
+            checkText('FatherName', "Father's Name");
+            checkText('MotherName', "Mother's Name");
+            checkSelect('Gender', 'Gender');
+            checkText('DateOfBirth', 'Date of Birth');
+            checkSelect('MaritalStatus', 'Marital Status');
+            checkText('AadhaarNumber', 'Aadhaar Number');
+            checkText('LanguagesKnown', 'Languages Known');
+
+            checkText('CurrentAddress', 'Current Address');
+            checkText('PermanentAddress', 'Permanent Address');
+            checkSelect('StateId', 'State');
+            checkSelect('DistrictId', 'District');
+            checkText('PinCode', 'PIN Code');
+
+            checkSelect('PreferredIndustryId', 'Preferred Industry');
+            checkText('PreferredLocation', 'Preferred Location');
+            checkNumber('ExpectedSalary', 'Expected Salary');
+            checkSelect('ShiftPreference', 'Shift Preference');
+            checkSelect('PreferredEmploymentType', 'Employment Type');
+
+            var isFresher = document.getElementById('isFresher');
+            if (isFresher && !isFresher.checked) {
+                checkNumber('TotalExperienceYears', 'Total Experience (Years)');
+                checkText('PreviousEmployer', 'Previous Employer');
+                checkText('PreviousDesignation', 'Previous Designation');
+                checkNumber('PreviousSalary', 'Previous Salary');
+                checkSelect('PreviousIndustryId', 'Previous Industry');
+            }
+
+            if (document.querySelectorAll('input[name="SelectedSkillIds"]:checked').length === 0) {
+                errors.push('At least 1 skill');
+            }
+
+            var hasEdu = false;
+            document.querySelectorAll('#educationTable tbody tr').forEach(function (row) {
+                var sel = row.querySelector('select[name$=".QualificationId"]');
+                if (sel && sel.value !== '') hasEdu = true;
+            });
+            if (!hasEdu) errors.push('At least 1 education entry');
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                document.getElementById('saveSpinner').classList.add('d-none');
+                document.getElementById('validationModalBody').innerHTML = '<p class="fw-medium">Please fill the following required fields:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                new bootstrap.Modal(document.getElementById('validationModal')).show();
+            }
+        });
+
+        // Conditional experience * toggle
+        const isFresher = document.getElementById('isFresher');
+        const expRequired = document.querySelectorAll('.exp-required');
+        function toggleExpRequired() {
+            const show = !isFresher.checked;
+            expRequired.forEach(function (el) { el.style.display = show ? 'inline' : 'none'; });
+        }
+        if (isFresher) {
+            isFresher.addEventListener('change', toggleExpRequired);
+            toggleExpRequired();
+        }
+
+        // Same as current address
+        const sameAsCurrent = document.getElementById('sameAsCurrent');
+        const currentAddr = document.getElementById('CurrentAddress');
+        const permanentAddr = document.getElementById('PermanentAddress');
+        if (sameAsCurrent && currentAddr && permanentAddr) {
+            sameAsCurrent.addEventListener('change', function () {
+                if (this.checked) {
+                    permanentAddr.value = currentAddr.value;
+                    permanentAddr.readOnly = true;
+                } else {
+                    permanentAddr.readOnly = false;
+                }
+            });
+            currentAddr.addEventListener('input', function () {
+                if (sameAsCurrent.checked) {
+                    permanentAddr.value = this.value;
+                }
+            });
+        }
+
+        @if (TempData["ShowProfileCreatedModal"] != null)
+        {
+            <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    new bootstrap.Modal(document.getElementById('profileCreatedModal')).show();
+                });
+            </text>
+        }
+        @if (TempData["ShowProfileUpdatedModal"] != null)
+        {
+            <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    new bootstrap.Modal(document.getElementById('profileUpdatedModal')).show();
+                });
+            </text>
+        }
     </script>
 }

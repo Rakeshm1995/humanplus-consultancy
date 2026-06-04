@@ -72,8 +72,15 @@ namespace HumanPlus.Infrastructure.Migrations
                     b.Property<bool>("IsFresher")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsOfficeVisited")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsProfileComplete")
                         .HasColumnType("bit");
+
+                    b.Property<string>("LanguagesKnown")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int?>("MaritalStatus")
                         .HasColumnType("int");

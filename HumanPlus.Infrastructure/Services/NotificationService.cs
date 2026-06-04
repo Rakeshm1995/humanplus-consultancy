@@ -33,5 +33,14 @@ namespace HumanPlus.Infrastructure.Services
         {
             return await _db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
         }
+
+        public async Task<List<Notification>> GetUserNotificationsAsync(string userId, int limit = 50)
+        {
+            return await _db.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(limit)
+                .ToListAsync();
+        }
     }
 }

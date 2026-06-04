@@ -21,10 +21,13 @@ namespace Humanplus_Manpower_Consulting.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            return View();
+            var notifications = await _notificationService.GetUserNotificationsAsync(user!.Id);
+            ViewBag.UnreadCount = await _notificationService.GetUnreadCountAsync(user.Id);
+            return View(notifications);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAsRead(int id)
         {
             await _notificationService.MarkAsReadAsync(id);

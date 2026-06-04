@@ -1,80 +1,370 @@
 @using HumanPlus.Domain.Entities.Candidates
 @using HumanPlus.Domain.Entities.Identity
+@using HumanPlus.Domain.Enums
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
-@model Candidate
+@model CandidateDashboardViewModel
 @{
     ViewData["Title"] = "My Dashboard";
+    var candidate = Model.Candidate;
+    var candidateName = candidate.User?.FullName ?? User.Identity!.Name;
+    var docCount = candidate.Documents?.Count ?? 0;
 }
 
-<div class="container py-4">
-    <h2><i class="bi bi-speedometer2"></i> Candidate Dashboard</h2>
-    <hr />
+<div class="candidate-dashboard">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-    }
+    @* Welcome Banner *@
+    <div class="candidate-welcome rounded-4 mb-4 p-4 d-flex align-items-center justify-content-between flex-wrap">
+        <div>
+            <h1 class="text-white fw-bold mb-1"><i class="bi bi-person-circle me-2"></i>Welcome, @candidateName</h1>
+            <p class="text-white-50 mb-0">Manage your profile, documents, and job applications.</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge rounded-pill bg-light text-dark px-3 py-2 fs-6">
+                <i class="bi bi-check-circle@(candidate.IsProfileComplete ? "-fill text-success" : " text-warning") me-1"></i>
+                Profile: @(candidate.IsProfileComplete ? "Complete" : "Incomplete")
+            </span>
+            <span class="text-white-50 small">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</span>
+        </div>
+    </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Status</h5>
-                <span class="badge bg-info fs-6">@Model.Status</span>
+    @* Stat Cards *@
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-card rounded-4 p-3 bg-gradient-teal">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-number">@candidate.Status</div>
+                        <div class="stat-label">Current Status</div>
+                    </div>
+                    <i class="bi bi-person-check-fill stat-icon"></i>
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Profile</h5>
-                <span class="badge @(Model.IsProfileComplete ? "bg-success" : "bg-warning") fs-6">
-                    @(Model.IsProfileComplete ? "Complete" : "Incomplete")
-                </span>
+        <div class="col-md-3 col-6">
+            <div class="stat-card rounded-4 p-3 @(candidate.IsProfileComplete ? "bg-gradient-green" : "bg-gradient-amber")">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-number">@(candidate.IsProfileComplete ? "Complete" : "Incomplete")</div>
+                        <div class="stat-label">Profile</div>
+                    </div>
+                    <i class="bi bi-file-person-fill stat-icon"></i>
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Documents</h5>
-                <span class="badge bg-secondary fs-6">@Model.Documents?.Count ?? 0</span>
+        <div class="col-md-3 col-6">
+            <div class="stat-card rounded-4 p-3 bg-gradient-blue">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-number">@docCount</div>
+                        <div class="stat-label">Documents</div>
+                    </div>
+                    <i class="bi bi-file-earmark-text-fill stat-icon"></i>
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Fee</h5>
-                <span class="badge @(Model.IsFeePaid ? "bg-success" : "bg-danger") fs-6">
-                    @(Model.IsFeePaid ? "Paid" : "Unpaid")
-                </span>
+        <div class="col-md-3 col-6">
+            <div class="stat-card rounded-4 p-3 @(candidate.IsFeePaid ? "bg-gradient-green" : "bg-gradient-rose")">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-number">@(candidate.IsFeePaid ? "Paid" : "Unpaid")</div>
+                        <div class="stat-label">Registration Fee</div>
+                    </div>
+                    <i class="bi bi-currency-rupee stat-icon"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-person-badge display-6 text-primary"></i>
-                    <h5 class="mt-2">My Profile</h5>
-                    <a asp-action="MyProfile" class="btn btn-outline-primary">Edit Profile</a>
+    @* Next Steps Checklist *@
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-check2-square text-gold me-2"></i>Your Journey Checklist</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="next-step @(candidate.IsProfileComplete ? "completed" : "")">
+                        <div class="step-icon @(candidate.IsProfileComplete ? "bg-success" : "bg-light border")">
+                            <i class="bi @(candidate.IsProfileComplete ? "bi-check-lg text-white" : "bi-person text-muted")"></i>
+                        </div>
+                        <div class="step-label">
+                            <strong>Complete Profile</strong>
+                            <small class="text-muted d-block">Fill personal &amp; job details</small>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-file-earmark-text display-6 text-primary"></i>
-                    <h5 class="mt-2">Documents</h5>
-                    <a asp-action="Documents" class="btn btn-outline-primary">Upload Documents</a>
-                    <a asp-controller="Document" asp-action="DownloadRegistrationForm" class="btn btn-outline-success btn-sm mt-1">Download Form</a>
+                <div class="col-md-3">
+                    <div class="next-step @(docCount > 0 ? "completed" : "")">
+                        <div class="step-icon @(docCount > 0 ? "bg-success" : "bg-light border")">
+                            <i class="bi @(docCount > 0 ? "bi-check-lg text-white" : "bi-file-earmark text-muted")"></i>
+                        </div>
+                        <div class="step-label">
+                            <strong>Upload Documents</strong>
+                            <small class="text-muted d-block">Aadhaar, Photo, Resume</small>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-briefcase display-6 text-primary"></i>
-                    <h5 class="mt-2">Job Opportunities</h5>
-                    <a asp-action="JobOpportunities" class="btn btn-outline-primary">Browse Jobs</a>
+                <div class="col-md-3">
+                    <div class="next-step @(candidate.IsOfficeVisited ? "completed" : "")">
+                        <div class="step-icon @(candidate.IsOfficeVisited ? "bg-success" : "bg-light border")">
+                            <i class="bi @(candidate.IsOfficeVisited ? "bi-check-lg text-white" : "bi-building text-muted")"></i>
+                        </div>
+                        <div class="step-label">
+                            <strong>Visit Office</strong>
+                            <small class="text-muted d-block">Bhubaneswar office</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="next-step @(candidate.IsFeePaid ? "completed" : "")">
+                        <div class="step-icon @(candidate.IsFeePaid ? "bg-success" : "bg-light border")">
+                            <i class="bi @(candidate.IsFeePaid ? "bi-check-lg text-white" : "bi-currency-rupee text-muted")"></i>
+                        </div>
+                        <div class="step-label">
+                            <strong>Pay Registration Fee</strong>
+                            <small class="text-muted d-block">Complete registration</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @* === NEW SECTIONS === *@
+
+    @* Profile Status Section *@
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="section-icon-lg bg-soft-teal rounded-circle">
+                    <i class="bi bi-person-badge text-teal"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">Profile Status</h5>
+                    <small class="text-muted">View and manage your profile information</small>
+                </div>
+            </div>
+            <div class="row g-3 align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span>Profile Completion</span>
+                        <span class="fw-bold text-@(Model.ProfileCompletionPercent >= 80 ? "success" : Model.ProfileCompletionPercent >= 50 ? "warning" : "danger")">@Model.ProfileCompletionPercent%</span>
+                    </div>
+                    <div class="progress" style="height:10px;">
+                        <div class="progress-bar bg-@(Model.ProfileCompletionPercent >= 80 ? "success" : Model.ProfileCompletionPercent >= 50 ? "warning" : "danger")"
+                             role="progressbar" style="width:@Model.ProfileCompletionPercent%"
+                             aria-valuenow="@Model.ProfileCompletionPercent" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-@(candidate.Status == CandidateStatus.Active ? "success" : candidate.Status == CandidateStatus.Placed ? "primary" : "secondary") fs-6 me-2">
+                            <i class="bi bi-check-circle me-1"></i>@candidate.Status
+                        </span>
+                        @if (candidate.IsProfileComplete)
+                        {
+                            <span class="badge bg-success fs-6"><i class="bi bi-check-lg"></i> Profile Complete</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark fs-6"><i class="bi bi-exclamation-triangle"></i> Incomplete</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a asp-action="MyProfile" class="btn btn-outline-primary rounded-pill px-3 me-2">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                    <a asp-action="MyProfile" class="btn btn-primary rounded-pill px-3">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Documents Section *@
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="section-icon-lg bg-soft-amber rounded-circle">
+                    <i class="bi bi-file-earmark-text text-amber"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">Documents</h5>
+                    <small class="text-muted">Upload required documents and download forms</small>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-action="Documents" class="btn btn-outline-primary rounded-pill px-3">
+                    <i class="bi bi-upload"></i> Upload Documents
+                </a>
+                <a asp-controller="Document" asp-action="DownloadRegistrationForm" class="btn btn-success rounded-pill px-3">
+                    <i class="bi bi-download"></i> Download Registration Form
+                </a>
+            </div>
+            <div class="alert alert-info mt-3 mb-0 py-2 px-3 rounded-3">
+                <i class="bi bi-info-circle me-1"></i>
+                Take this form to the office for registration &amp; fee payment
+            </div>
+        </div>
+    </div>
+
+    @* My Jobs Section *@
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="section-icon-lg bg-soft-purple rounded-circle">
+                    <i class="bi bi-briefcase text-purple"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">My Jobs</h5>
+                    <small class="text-muted">Browse opportunities and track applications</small>
+                </div>
+            </div>
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-3">
+                        <div>
+                            <div class="fw-bold fs-4 text-primary">@Model.TotalApplications</div>
+                            <small class="text-muted">Applied Jobs</small>
+                        </div>
+                    </div>
+                    @if (Model.RecentApplications.Any())
+                    {
+                        <div class="mt-2">
+                            <small class="text-muted fw-medium">Recent:</small>
+                            @foreach (var app in Model.RecentApplications)
+                            {
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span><i class="bi bi-dot"></i>@app.JobDemand?.JobTitle</span>
+                                    <span class="badge bg-@(app.Status == CandidateStatus.Shortlisted ? "info" : app.Status == CandidateStatus.InterviewScheduled ? "warning" : app.Status == CandidateStatus.Selected ? "success" : app.Status == CandidateStatus.Placed ? "primary" : app.Status == CandidateStatus.Rejected ? "danger" : "secondary") bg-opacity-25 text-dark">
+                                        @app.Status
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mt-2">No applications yet.</p>
+                    }
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a asp-action="JobOpportunities" class="btn btn-outline-primary rounded-pill px-3 me-2">
+                        <i class="bi bi-search"></i> View Jobs
+                    </a>
+                    <a asp-action="ApplicationStatus" class="btn btn-primary rounded-pill px-3">
+                        <i class="bi bi-list-check"></i> Application Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Interviews & Placement Section *@
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="section-icon-lg bg-soft-indigo rounded-circle">
+                    <i class="bi bi-calendar-check text-indigo"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">Interviews &amp; Placement</h5>
+                    <small class="text-muted">Upcoming interviews and placement status</small>
+                </div>
+            </div>
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    @if (Model.UpcomingInterviews.Any())
+                    {
+                        <div class="fw-bold fs-4 text-indigo">@Model.TotalInterviews</div>
+                        <small class="text-muted">Total Interviews</small>
+                        <div class="mt-2">
+                            @foreach (var iv in Model.UpcomingInterviews)
+                            {
+                                <div class="d-flex align-items-center gap-2 mt-1">
+                                    <i class="bi bi-calendar-event text-indigo"></i>
+                                    <span>@iv.JobDemand?.JobTitle</span>
+                                    <small class="text-muted">@iv.InterviewDate.ToString("dd-MMM-yyyy")</small>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small">No interviews scheduled.</p>
+                    }
+
+                    @if (Model.Placement != null)
+                    {
+                        <div class="mt-3 p-3 bg-success-subtle rounded-3 border border-success-subtle">
+                            <strong class="text-success"><i class="bi bi-trophy-fill"></i> Placed!</strong>
+                            <div class="small mt-1">
+                                @Model.Placement.JobDemand?.JobTitle
+                                <br />Joining: @Model.Placement.JoiningDate?.ToString("dd-MMM-yyyy")
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a asp-action="InterviewSchedule" class="btn btn-outline-indigo rounded-pill px-3 me-2">
+                        <i class="bi bi-calendar-week"></i> Interview Schedule
+                    </a>
+                    <a asp-action="PlacementStatus" class="btn btn-success rounded-pill px-3">
+                        <i class="bi bi-trophy"></i> Placement Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Notifications & Fees Section *@
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="section-icon-lg bg-soft-rose rounded-circle">
+                    <i class="bi bi-bell text-rose"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">Notifications &amp; Fee</h5>
+                    <small class="text-muted">Stay updated and manage your fee status</small>
+                </div>
+            </div>
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-3 mb-2">
+                        <span class="badge @(candidate.IsFeePaid ? "bg-success" : "bg-warning text-dark") fs-6">
+                            <i class="bi bi-currency-rupee"></i> Fee: @(candidate.IsFeePaid ? "Paid" : "Unpaid")
+                        </span>
+                        <span class="badge bg-primary fs-6">
+                            <i class="bi bi-bell"></i> @Model.UnreadNotificationCount Unread
+                        </span>
+                    </div>
+                    @if (Model.RecentNotifications.Any())
+                    {
+                        <div class="mt-1">
+                            @foreach (var n in Model.RecentNotifications)
+                            {
+                                <div class="d-flex align-items-start gap-2 py-1 border-bottom border-light @(n.IsRead ? "" : "fw-semibold")">
+                                    <i class="bi bi-dot mt-1 @(n.IsRead ? "text-muted" : "text-primary")"></i>
+                                    <small>@n.Message</small>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mt-1">No notifications yet.</p>
+                    }
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a asp-controller="Notification" asp-action="Index" class="btn btn-outline-rose rounded-pill px-3">
+                        <i class="bi bi-bell"></i> View All Notifications
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+

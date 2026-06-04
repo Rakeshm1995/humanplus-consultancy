@@ -1,0 +1,53 @@
+@using HumanPlus.Domain.Entities.Candidates
+@using HumanPlus.Domain.Entities.Jobs
+@model Candidate
+
+<div class="modal-header bg-purple text-white border-0">
+    <h6 class="modal-title"><i class="bi bi-award me-2"></i>Placement History — @Model.User?.FullName</h6>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+    @{
+        var placements = ViewBag.Placements as List<Placement>;
+    }
+    @if (placements != null && placements.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Employer</th>
+                        <th>Placement Date</th>
+                        <th>Salary</th>
+                        <th>Joining Date</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in placements)
+                    {
+                        <tr>
+                            <td class="fw-medium">@p.JobDemand?.JobTitle</td>
+                            <td>@p.JobDemand?.Employer?.CompanyName</td>
+                            <td class="small">@p.PlacementDate.ToString("dd-MMM-yyyy")</td>
+                            <td>@(p.SalaryOffered.HasValue ? $"₹ {p.SalaryOffered.Value:N0}" : "-")</td>
+                            <td class="small">@(p.JoiningDate?.ToString("dd-MMM-yyyy") ?? "-")</td>
+                            <td class="small text-muted">@(p.Notes ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-briefcase fs-2 d-block mb-2"></i>
+            No placements yet
+        </div>
+    }
+</div>
+<div class="modal-footer border-0">
+    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+</div>
