@@ -49,6 +49,7 @@ namespace HumanPlus.Domain.Entities.Candidates
 
         public CandidateStatus Status { get; set; } = CandidateStatus.NewRegistration;
         public bool IsProfileComplete { get; set; }
+        public bool IsDeclarationAccepted { get; set; }
         public bool IsFeePaid { get; set; }
         public bool IsOfficeVisited { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -4,6 +4,7 @@ using HumanPlus.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HumanPlus.Infrastructure.Migrations
 {
     [DbContext(typeof(HumanPlusDbContext))]
-    partial class HumanPlusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260609102844_AddEmployerRequirements")]
+    partial class AddEmployerRequirements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -462,7 +465,7 @@ namespace HumanPlus.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("IndustryId")
+                    b.Property<int>("IndustryId")
                         .HasColumnType("int");
 
                     b.Property<string>("ManpowerTypeRequired")
@@ -1547,7 +1550,8 @@ namespace HumanPlus.Infrastructure.Migrations
                     b.HasOne("HumanPlus.Domain.Entities.MasterData.Industry", "Industry")
                         .WithMany()
                         .HasForeignKey("IndustryId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("HumanPlus.Domain.Entities.MasterData.State", "State")
                         .WithMany()

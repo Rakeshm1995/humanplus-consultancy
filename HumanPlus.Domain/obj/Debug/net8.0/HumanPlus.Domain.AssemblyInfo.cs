@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HumanPlus.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea98e05179f19af352709a581cb89733c7eeb670")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d40256d79837789a35d21b4c799f1a5f9d5ad1a")]
 [assembly: System.Reflection.AssemblyProductAttribute("HumanPlus.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HumanPlus.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

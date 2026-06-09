@@ -12,8 +12,8 @@ namespace HumanPlus.Domain.Entities.Employers
 
         [Required, MaxLength(200)] public string CompanyName { get; set; } = string.Empty;
         [MaxLength(100)] public string? BusinessType { get; set; }
-        public int IndustryId { get; set; }
-        public Industry Industry { get; set; } = null!;
+        public int? IndustryId { get; set; }
+        public Industry? Industry { get; set; }
         [MaxLength(50)] public string? GstNumber { get; set; }
         [MaxLength(50)] public string? CinNumber { get; set; }
         [MaxLength(200)] public string? Website { get; set; }
@@ -28,6 +28,10 @@ namespace HumanPlus.Domain.Entities.Employers
         [MaxLength(100)] public string? ContactPersonDesignation { get; set; }
         [MaxLength(20)] public string? ContactPersonMobile { get; set; }
         [MaxLength(100)] public string? ContactPersonEmail { get; set; }
+
+        [MaxLength(500)] public string? ManpowerTypeRequired { get; set; }
+        [MaxLength(500)] public string? ServiceLocations { get; set; }
+        public int? ApproximateHiringVolume { get; set; }
 
         public EmployerStatus Status { get; set; } = EmployerStatus.PendingVerification;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

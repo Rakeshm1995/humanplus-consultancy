@@ -2,21 +2,28 @@
 @using HumanPlus.Domain.Enums
 @model List<Employer>
 @{
-    ViewData["Title"] = "Manage Employers";
+    ViewData["Title"] = "Employer Management";
 }
 
-<div class="container py-4">
-    <h2><i class="bi bi-building"></i> Employer Management</h2>
-    <hr />
+<div class="container-fluid px-4 py-4">
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-    }
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-building me-2 text-teal"></i>Employer Management</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Employers</li>
+                </ol>
+            </nav>
+        </div>
+        <a asp-action="Employers" class="btn btn-outline-teal rounded-pill btn-sm"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</a>
+    </div>
 
-    <form method="get" class="row g-2 mb-3">
+    @* Search / Filter *@
+    <form method="get" class="row g-2 mb-3 align-items-end">
         <div class="col-md-3">
-            <select name="status" class="form-select" onchange="this.form.submit()">
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                 <option value="">All Statuses</option>
                 @foreach (var s in (EmployerStatus[])ViewBag.EmployerStatuses)
                 {
@@ -25,57 +32,172 @@
             </select>
         </div>
         <div class="col-md-5">
-            <input type="text" name="search" class="form-control" placeholder="Search by company name, email..." value="@ViewBag.Search" />
+            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search company name, email..." value="@ViewBag.Search" />
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Search</button>
+            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-search me-1"></i>Search</button>
         </div>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th>Company</th>
-                    <th>Contact Person</th>
-                    <th>Email</th>
-                    <th>Industry</th>
-                    <th>Status</th>
-                    <th>Registered</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var e in Model)
-                {
-                    <tr>
-                        <td>@e.CompanyName</td>
-                        <td>@e.ContactPersonName</td>
-                        <td>@e.User?.Email</td>
-                        <td>@e.Industry?.Name</td>
-                        <td>
-                            <span class="badge bg-@(e.Status switch {
-                                EmployerStatus.Active => "success",
-                                EmployerStatus.PendingVerification => "warning",
-                                EmployerStatus.Suspended => "danger",
-                                _ => "secondary"
-                            })">@e.Status</span>
-                        </td>
-                        <td>@e.CreatedAt.ToString("dd-MMM-yy")</td>
-                        <td>
-                            <form asp-action="UpdateEmployerStatus" method="post" class="d-inline">
-                                <input type="hidden" name="employerId" value="@e.Id" />
-                                <select name="newStatus" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                                    @foreach (var s in (EmployerStatus[])ViewBag.EmployerStatuses)
-                                    {
-                                        <option value="@s" selected="@(e.Status == s)">@s</option>
-                                    }
-                                </select>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    @* Table *@
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="candidates-table-wrap">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-3">Company</th>
+                            <th class="py-3">Contact Person</th>
+                            <th class="py-3">Email</th>
+                            <th class="py-3">Industry</th>
+                            <th class="py-3">Status</th>
+                            <th class="py-3">Registered</th>
+                            <th class="text-center py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model)
+                        {
+                            <tr>
+                                <td class="px-3 fw-medium">@e.CompanyName</td>
+                                <td>@e.ContactPersonName</td>
+                                <td>@e.User?.Email</td>
+                                <td>@(e.Industry?.Name ?? "-")</td>
+                                <td>
+                                    <span class="badge bg-@(e.Status switch {
+                                        EmployerStatus.Active => "success",
+                                        EmployerStatus.PendingVerification => "warning text-dark",
+                                        EmployerStatus.Suspended => "danger",
+                                        EmployerStatus.Inactive => "secondary",
+                                        _ => "secondary"
+                                    }) rounded-pill px-3">@e.Status</span>
+                                </td>
+                                <td class="text-muted">@e.CreatedAt.ToString("dd-MMM-yy")</td>
+                                <td class="text-center">
+                                    <div class="dropdown d-inline">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" title="Change Status">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end small py-1" style="min-width:140px;max-height:250px;overflow-y:auto;">
+                                            @foreach (var s in (EmployerStatus[])ViewBag.EmployerStatuses)
+                                            {
+                                                <li>
+                                                    <form asp-action="UpdateEmployerStatus" method="post" class="d-inline">
+                                                        <input type="hidden" name="employerId" value="@e.Id" />
+                                                        <input type="hidden" name="newStatus" value="@s" />
+                                                        <button type="submit" class="dropdown-item py-1 @(e.Status == s ? "active" : "")" data-confirm="Change status to @(s)?">@s</button>
+                                                    </form>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    <span>No employers found</span>
+                </div>
+            }
+        </div>
     </div>
 </div>
+
+@* Confirmation Modal *@
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark border-0">
+                <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Action</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-3" id="confirmMessage"></div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning rounded-pill px-4" id="confirmBtn">Yes, Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Success / Error Modals *@
+@if (TempData["Success"] != null)
+{
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Success</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-3">
+                    <i class="bi bi-check-circle text-success display-4 mb-2 d-block"></i>
+                    <p class="mb-0">@TempData["Success"]</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0">
+                    <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="modal fade" id="errorModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-exclamation-circle-fill me-2"></i>Error</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-3">
+                    <i class="bi bi-exclamation-circle text-danger display-4 mb-2 d-block"></i>
+                    <p class="mb-0">@TempData["Error"]</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0">
+                    <button type="button" class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Confirmation modal
+        var pendingForm = null;
+        document.querySelectorAll('[data-confirm]').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                pendingForm = this.closest('form');
+                document.getElementById('confirmMessage').innerHTML = '<p class="mb-0 fw-medium">' + this.dataset.confirm + '</p>';
+                new bootstrap.Modal(document.getElementById('confirmModal')).show();
+            });
+        });
+        document.getElementById('confirmBtn').addEventListener('click', function () {
+            if (pendingForm) pendingForm.submit();
+        });
+
+        @if (TempData["Success"] != null)
+        {
+            <text>
+            document.addEventListener('DOMContentLoaded', function () {
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            });
+            </text>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <text>
+            document.addEventListener('DOMContentLoaded', function () {
+                new bootstrap.Modal(document.getElementById('errorModal')).show();
+            });
+            </text>
+        }
+    </script>
+}

@@ -139,7 +139,7 @@ namespace HumanPlus.Infrastructure.Data
                 e.HasOne(em => em.Industry)
                     .WithMany()
                     .HasForeignKey(em => em.IndustryId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.SetNull);
 
                 e.HasOne(em => em.District)
                     .WithMany()

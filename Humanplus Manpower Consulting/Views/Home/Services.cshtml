@@ -2,12 +2,14 @@
     ViewData["Title"] = "Services";
 }
 
-<div class="services-hero py-5 text-white">
-    <div class="container text-center py-4">
-        <h1 class="display-5 fw-bold">Our <span class="text-gold">Services</span></h1>
-        <p class="lead mx-auto" style="max-width: 650px; opacity: 0.92;">
-            Comprehensive manpower solutions tailored to your industry needs
-        </p>
+<div class="hero-section-wrapper page-hero-section" style="background-image: url('/images/services-hero.jpg');">
+    <div class="hero-overlay-fixed">
+        <div class="container text-center text-white">
+            <h1 class="display-5 fw-bold hero-title">Our <span class="text-gold">Services</span></h1>
+            <p class="lead mx-auto" style="max-width: 650px;">
+                Comprehensive manpower solutions tailored to your industry needs
+            </p>
+        </div>
     </div>
 </div>
 
@@ -82,11 +84,68 @@
     </div>
 </div>
 
-<div class="cta-section py-5 text-white">
+@* <div class="cta-section py-5 text-white">
     <div class="container text-center py-3">
         <h3 class="fw-bold mb-2">Ready to Get Started?</h3>
         <p class="mb-4" style="opacity: 0.9; font-size: 1.1rem;">Register today and find the right talent or the right job</p>
         <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-gold btn-lg me-2 mb-2">Register as Employer</a>
-        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-outline-light btn-lg mb-2">Register as Job Seeker</a>
-    </div>
-</div>
+        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-outline-light btn-lg mb-2">Register as Job Seeker</a> *@
+        <div class="cta-section py-5 text-white">
+            <div class="container text-center py-3">
+                <h3 class="fw-bold mb-2">Ready to Get Started?</h3>
+
+                @if (!User.Identity!.IsAuthenticated)
+                {
+                    <p class="mb-4" style="opacity: 0.9; font-size: 1.1rem;">
+                        Register today and find the right talent or the right job
+                    </p>
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       asp-route-role="Employer"
+                       class="btn btn-gold btn-lg me-2 mb-2">
+                        Register as Employer
+                    </a>
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       asp-route-role="JobSeeker"
+                       class="btn btn-outline-light btn-lg mb-2">
+                        Register as Job Seeker
+                    </a>
+                }
+                else
+                {
+                    <p class="mb-4" style="opacity: 0.9; font-size: 1.1rem;">
+                        Welcome back! Continue from your dashboard.
+                    </p>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Admin"
+                           asp-action="Dashboard"
+                           class="btn btn-gold btn-lg">
+                            Go to Admin Dashboard
+                        </a>
+                    }
+                    else if (User.IsInRole("Employer"))
+                    {
+                        <a asp-controller="Employer"
+                           asp-action="Dashboard"
+                           class="btn btn-gold btn-lg">
+                            Go to Employer Dashboard
+                        </a>
+                    }
+                    else if (User.IsInRole("JobSeeker"))
+                    {
+                        <a asp-controller="Candidate"
+                           asp-action="Dashboard"
+                           class="btn btn-gold btn-lg">
+                            Go to Dashboard
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    @* </div>
+</div> *@

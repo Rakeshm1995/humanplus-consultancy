@@ -2,91 +2,83 @@
     ViewData["Title"] = "Home";
 }
 
-<div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
-    <div class="carousel-indicators">
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+<div class="hero-section-wrapper">
+    <div id="heroCarousel" class="carousel slide hero-carousel h-100" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+        </div>
+
+        <div class="carousel-inner h-100">
+            <div class="carousel-item active h-100" style="background-image: url('/images/slider/slide1.jpg')"></div>
+            <div class="carousel-item h-100" style="background-image: url('/images/slider/slide2.jpg')"></div>
+            <div class="carousel-item h-100" style="background-image: url('/images/slider/slide3.jpg')"></div>
+            <div class="carousel-item h-100" style="background-image: url('/images/slider/slide4.jpg')"></div>
+            <div class="carousel-item h-100" style="background-image: url('/images/slider/slide5.jpg')"></div>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
 
-    <div class="carousel-inner">
-        <div class="carousel-item active" style="background-image: url('/images/slider/slide1.jpg')">
-            <div class="carousel-overlay d-flex align-items-center">
-                <div class="container text-center text-white">
-                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
-                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
-                    <p>Connecting skilled workforce with leading employers across industries.</p>
-                    <div class="mt-4 d-grid gap-2 d-md-block">
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg">Register as Job Seeker</a>
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="carousel-item" style="background-image: url('/images/slider/slide2.jpg')">
-            <div class="carousel-overlay d-flex align-items-center">
-                <div class="container text-center text-white">
-                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
-                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
-                    <p>Connecting skilled workforce with leading employers across industries.</p>
-                    <div class="mt-4 d-grid gap-2 d-md-block">
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg">Register as Job Seeker</a>
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="carousel-item" style="background-image: url('/images/slider/slide3.jpg')">
-            <div class="carousel-overlay d-flex align-items-center">
-                <div class="container text-center text-white">
-                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
-                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
-                    <p>Connecting skilled workforce with leading employers across industries.</p>
-                    <div class="mt-4 d-grid gap-2 d-md-block">
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg">Register as Job Seeker</a>
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="carousel-item" style="background-image: url('/images/slider/slide4.jpg')">
-            <div class="carousel-overlay d-flex align-items-center">
-                <div class="container text-center text-white">
-                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
-                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
-                    <p>Connecting skilled workforce with leading employers across industries.</p>
-                    <div class="mt-4 d-grid gap-2 d-md-block">
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg">Register as Job Seeker</a>
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="carousel-item" style="background-image: url('/images/slider/slide5.jpg')">
-            <div class="carousel-overlay d-flex align-items-center">
-                <div class="container text-center text-white">
-                    <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
-                    <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
-                    <p>Connecting skilled workforce with leading employers across industries.</p>
-                    <div class="mt-4 d-grid gap-2 d-md-block">
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg">Register as Job Seeker</a>
-                        <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
-                    </div>
-                </div>
+    <div class="hero-overlay-fixed">
+        <div class="container text-center text-white">
+            <h1 class="display-4 fw-bold hero-title">Welcome to <span class="text-gold">HumanPlus</span></h1>
+            <p class="lead">Your Trusted Manpower Consulting Partner in Odisha</p>
+            <p>Connecting skilled workforce with leading employers across industries.</p>
+            @* <div class="mt-4 d-grid gap-2 d-md-block">
+                <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-gold btn-lg">Register as Job Seeker</a>
+                <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-primary btn-lg">Register as Employer</a>
+            </div> *@
+            <div class="mt-4 d-grid gap-2 d-md-block">
+                @if (!User.Identity!.IsAuthenticated)
+                {
+                    <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker"
+                       class="btn btn-gold btn-lg">
+                        Register as Job Seeker
+                    </a>
+
+                    <a asp-controller="Account" asp-action="Register" asp-route-role="Employer"
+                       class="btn btn-primary btn-lg">
+                        Register as Employer
+                    </a>
+                }
+                else
+                {
+                    @if (User.IsInRole("JobSeeker"))
+                    {
+                        <a asp-controller="Candidate" asp-action="Dashboard"
+                           class="btn btn-gold btn-lg">
+                            Go to Dashboard
+                        </a>
+                    }
+                    else if (User.IsInRole("Employer"))
+                    {
+                        <a asp-controller="Employer" asp-action="Dashboard"
+                           class="btn btn-primary btn-lg">
+                            Go to Dashboard
+                        </a>
+                    }
+                    else if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Admin" asp-action="Dashboard"
+                           class="btn btn-primary btn-lg">
+                            Go to Admin Dashboard
+                        </a>
+                    }
+                }
             </div>
         </div>
     </div>
-
-    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
 </div>
 
 <div class="container my-5">
@@ -99,7 +91,22 @@
                     </div>
                     <h5 class="fw-semibold">For Job Seekers</h5>
                     <p class="card-text text-muted">Find the right job opportunity matching your skills and experience.</p>
-                    <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-outline-primary">Get Started</a>
+                    @* <a asp-controller="Account" asp-action="Register" asp-route-role="JobSeeker" class="btn btn-outline-primary">Get Started</a> *@
+                    @if (!User.Identity!.IsAuthenticated)
+                    {
+                        <a asp-controller="Account" asp-action="Register"
+                           asp-route-role="JobSeeker"
+                           class="btn btn-outline-primary">
+                            Get Started
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Candidate" asp-action="Dashboard"
+                           class="btn btn-outline-primary">
+                            Dashboard
+                        </a>
+                    }
                 </div>
             </div>
         </div>
@@ -111,7 +118,22 @@
                     </div>
                     <h5 class="fw-semibold">For Employers</h5>
                     <p class="card-text text-muted">Post job demands and find qualified candidates quickly.</p>
-                    <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-outline-primary">Post a Demand</a>
+                    @* <a asp-controller="Account" asp-action="Register" asp-route-role="Employer" class="btn btn-outline-primary">Post a Demand</a> *@
+                    @if (!User.Identity!.IsAuthenticated)
+                    {
+                        <a asp-controller="Account" asp-action="Register"
+                           asp-route-role="Employer"
+                           class="btn btn-outline-primary">
+                            Post a Demand
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Employer" asp-action="Dashboard"
+                           class="btn btn-outline-primary">
+                            Dashboard
+                        </a>
+                    }
                 </div>
             </div>
         </div>

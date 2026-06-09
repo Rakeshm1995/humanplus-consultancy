@@ -5,7 +5,7 @@
     var adminName = User.Identity!.Name;
 }
 
-<div class="admin-dashboard">
+<div class="container py-4 admin-page">
 
     @* Welcome Banner *@
     <div class="admin-welcome rounded-4 mb-4 p-4 d-flex align-items-center justify-content-between flex-wrap">
@@ -14,234 +14,220 @@
             <p class="text-white-50 mb-0">Here's what's happening with HumanPlus today.</p>
         </div>
         <div class="text-end text-white-50 small">
-            @DateTime.Now.ToString("dddd, dd MMMM yyyy")
+            <div class="fw-medium fs-6">@DateTime.Now.ToString("dddd")</div>
+            <div>@DateTime.Now.ToString("dd MMMM yyyy")</div>
         </div>
     </div>
 
-    @* Stat Cards *@
+    @* Candidates Section *@
+    <div class="section-title-premium">Candidates</div>
+
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-teal">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.TotalJobSeekers</div>
-                        <div class="stat-label">Total Job Seekers</div>
-                    </div>
-                    <i class="bi bi-people-fill stat-icon"></i>
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-teal"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-teal"><i class="bi bi-people-fill text-teal"></i></div>
+                    <div class="stat-modern-number text-teal">@Model.TotalJobSeekers</div>
+                    <div class="stat-modern-label">Total Job Seekers</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-green">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.ActiveJobSeekers</div>
-                        <div class="stat-label">Active Job Seekers</div>
-                    </div>
-                    <i class="bi bi-person-check-fill stat-icon"></i>
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-teal"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-teal"><i class="bi bi-person-check-fill text-teal"></i></div>
+                    <div class="stat-modern-number text-teal">@Model.ActiveJobSeekers</div>
+                    <div class="stat-modern-label">Active Job Seekers</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3" style="background: linear-gradient(135deg, #0891b2, #22d3ee);">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.PendingRegistrations</div>
-                        <div class="stat-label">Pending Registrations</div>
-                    </div>
-                    <i class="bi bi-person-plus-fill stat-icon"></i>
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-amber"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-amber"><i class="bi bi-person-plus-fill text-amber"></i></div>
+                    <div class="stat-modern-number text-amber">@Model.PendingRegistrations</div>
+                    <div class="stat-modern-label">Pending Registrations</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-amber">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.PendingVerifications</div>
-                        <div class="stat-label">Pending Verifications</div>
-                    </div>
-                    <i class="bi bi-clock-fill stat-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-indigo">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.TotalEmployers</div>
-                        <div class="stat-label">Total Employers</div>
-                    </div>
-                    <i class="bi bi-building-fill stat-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-emerald">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.ActiveEmployers</div>
-                        <div class="stat-label">Active Employers</div>
-                    </div>
-                    <i class="bi bi-briefcase-fill stat-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-blue">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.ActiveDemands</div>
-                        <div class="stat-label">Active Demands</div>
-                    </div>
-                    <i class="bi bi-megaphone-fill stat-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-orange">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.PendingDemands</div>
-                        <div class="stat-label">Pending Demands</div>
-                    </div>
-                    <i class="bi bi-hourglass-split stat-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-purple">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.TotalPlacements</div>
-                        <div class="stat-label">Placements</div>
-                    </div>
-                    <i class="bi bi-award-fill stat-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card rounded-4 p-3 bg-gradient-rose">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-number">@Model.UpcomingInterviews</div>
-                        <div class="stat-label">Upcoming Interviews</div>
-                    </div>
-                    <i class="bi bi-calendar-event-fill stat-icon"></i>
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-amber"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-amber"><i class="bi bi-clock-fill text-amber"></i></div>
+                    <div class="stat-modern-number text-amber">@Model.PendingVerifications</div>
+                    <div class="stat-modern-label">Pending Verifications</div>
                 </div>
             </div>
         </div>
     </div>
 
-    @* Revenue Summary *@
-    <h5 class="fw-bold mb-3"><i class="bi bi-currency-rupee text-gold me-2"></i>Revenue Summary</h5>
+    @* Employers Section *@
+    <div class="section-title-premium">Employers</div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-indigo"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-indigo"><i class="bi bi-building-fill text-indigo"></i></div>
+                    <div class="stat-modern-number text-indigo">@Model.TotalEmployers</div>
+                    <div class="stat-modern-label">Total Employers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-indigo"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-indigo"><i class="bi bi-briefcase-fill text-indigo"></i></div>
+                    <div class="stat-modern-number text-indigo">@Model.ActiveEmployers</div>
+                    <div class="stat-modern-label">Active Employers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Demands & Placements Section *@
+    <div class="section-title-premium">Demands &amp; Placements</div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-amber"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-amber"><i class="bi bi-megaphone-fill text-amber"></i></div>
+                    <div class="stat-modern-number text-amber">@Model.ActiveDemands</div>
+                    <div class="stat-modern-label">Active Demands</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-amber"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-amber"><i class="bi bi-hourglass-split text-amber"></i></div>
+                    <div class="stat-modern-number text-amber">@Model.PendingDemands</div>
+                    <div class="stat-modern-label">Pending Demands</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-purple"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-purple"><i class="bi bi-award-fill text-purple"></i></div>
+                    <div class="stat-modern-number text-purple">@Model.TotalPlacements</div>
+                    <div class="stat-modern-label">Placements</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-purple"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-purple"><i class="bi bi-calendar-event-fill text-purple"></i></div>
+                    <div class="stat-modern-number text-purple">@Model.UpcomingInterviews</div>
+                    <div class="stat-modern-label">Upcoming Interviews</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Revenue Section *@
+    <div class="section-title-premium">Revenue</div>
+
     <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-soft-teal d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;">
-                        <i class="bi bi-wallet2 text-teal fs-5"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold fs-4">₹ @Model.TotalFeesCollected.ToString("N0")</div>
-                        <div class="small text-muted">Total Fees Collected</div>
-                    </div>
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-teal"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-teal"><i class="bi bi-wallet2 text-teal"></i></div>
+                    <div class="stat-modern-number text-teal">₹ @Model.TotalFeesCollected.ToString("N0")</div>
+                    <div class="stat-modern-label">Total Fees Collected</div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-soft-amber d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;">
-                        <i class="bi bi-hourglass-split text-amber fs-5"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold fs-4">@Model.PendingFeeCount</div>
-                        <div class="small text-muted">Pending Fee Payments</div>
-                    </div>
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-amber"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-amber"><i class="bi bi-hourglass-split text-amber"></i></div>
+                    <div class="stat-modern-number text-amber">@Model.PendingFeeCount</div>
+                    <div class="stat-modern-label">Pending Fee Payments</div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-soft-purple d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;">
-                        <i class="bi bi-piggy-bank-fill text-purple fs-5"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold fs-4">₹ @Model.TotalCommission.ToString("N0")</div>
-                        <div class="small text-muted">Total Commission</div>
-                    </div>
+            <div class="stat-modern">
+                <div class="stat-modern-accent bg-accent-purple"></div>
+                <div class="stat-modern-body">
+                    <div class="stat-modern-icon bg-soft-purple"><i class="bi bi-piggy-bank-fill text-purple"></i></div>
+                    <div class="stat-modern-number text-purple">₹ @Model.TotalCommission.ToString("N0")</div>
+                    <div class="stat-modern-label">Total Commission</div>
                 </div>
             </div>
         </div>
     </div>
 
     @* Quick Actions *@
-    <h5 class="fw-bold mb-3"><i class="bi bi-lightning-fill text-gold me-2"></i>Quick Actions</h5>
+    <div class="section-title-premium">Quick Actions</div>
+
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4 col-lg-2">
-            <a asp-action="Candidates" class="text-decoration-none">
-                <div class="action-card rounded-4 p-3 text-center border">
-                    <div class="action-icon bg-soft-teal rounded-circle mx-auto mb-2">
-                        <i class="bi bi-people-fill text-teal"></i>
-                    </div>
-                    <h6 class="fw-bold mb-0">Candidates</h6>
-                    <small class="text-muted">Manage</small>
+            <a asp-action="Candidates" class="text-decoration-none d-block">
+                <div class="action-card-premium bg-soft-grad-teal">
+                    <div class="action-icon"><i class="bi bi-people-fill text-accent-teal"></i></div>
+                    <div class="action-title">Candidates</div>
+                    <div class="action-subtitle">Manage</div>
                 </div>
             </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
-            <a asp-action="Employers" class="text-decoration-none">
-                <div class="action-card rounded-4 p-3 text-center border">
-                    <div class="action-icon bg-soft-indigo rounded-circle mx-auto mb-2">
-                        <i class="bi bi-building-fill text-indigo"></i>
-                    </div>
-                    <h6 class="fw-bold mb-0">Employers</h6>
-                    <small class="text-muted">Manage</small>
+            <a asp-action="Employers" class="text-decoration-none d-block">
+                <div class="action-card-premium bg-soft-grad-indigo">
+                    <div class="action-icon"><i class="bi bi-building-fill text-accent-indigo"></i></div>
+                    <div class="action-title">Employers</div>
+                    <div class="action-subtitle">Manage</div>
                 </div>
             </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
-            <a asp-action="JobDemands" class="text-decoration-none">
-                <div class="action-card rounded-4 p-3 text-center border">
-                    <div class="action-icon bg-soft-amber rounded-circle mx-auto mb-2">
-                        <i class="bi bi-briefcase-fill text-amber"></i>
-                    </div>
-                    <h6 class="fw-bold mb-0">Job Demands</h6>
-                    <small class="text-muted">Manage</small>
+            <a asp-action="JobDemands" class="text-decoration-none d-block">
+                <div class="action-card-premium bg-soft-grad-amber">
+                    <div class="action-icon"><i class="bi bi-briefcase-fill text-accent-amber"></i></div>
+                    <div class="action-title">Job Demands</div>
+                    <div class="action-subtitle">Manage</div>
                 </div>
             </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
-            <a asp-action="MasterData" class="text-decoration-none">
-                <div class="action-card rounded-4 p-3 text-center border">
-                    <div class="action-icon bg-soft-sky rounded-circle mx-auto mb-2">
-                        <i class="bi bi-gear-fill text-sky"></i>
-                    </div>
-                    <h6 class="fw-bold mb-0">Master Data</h6>
-                    <small class="text-muted">Settings</small>
+            <a asp-action="MasterData" class="text-decoration-none d-block">
+                <div class="action-card-premium bg-soft-grad-blue">
+                    <div class="action-icon"><i class="bi bi-gear-fill text-accent-blue"></i></div>
+                    <div class="action-title">Master Data</div>
+                    <div class="action-subtitle">Settings</div>
                 </div>
             </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
-            <a asp-action="Reports" class="text-decoration-none">
-                <div class="action-card rounded-4 p-3 text-center border">
-                    <div class="action-icon bg-soft-purple rounded-circle mx-auto mb-2">
-                        <i class="bi bi-bar-chart-fill text-purple"></i>
-                    </div>
-                    <h6 class="fw-bold mb-0">Reports</h6>
-                    <small class="text-muted">View</small>
+            <a asp-action="Reports" class="text-decoration-none d-block">
+                <div class="action-card-premium bg-soft-grad-purple">
+                    <div class="action-icon"><i class="bi bi-bar-chart-fill text-accent-purple"></i></div>
+                    <div class="action-title">Reports</div>
+                    <div class="action-subtitle">View</div>
                 </div>
             </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
-            <a asp-action="AuditLogs" class="text-decoration-none">
-                <div class="action-card rounded-4 p-3 text-center border">
-                    <div class="action-icon bg-soft-rose rounded-circle mx-auto mb-2">
-                        <i class="bi bi-journal-text-fill text-rose"></i>
-                    </div>
-                    <h6 class="fw-bold mb-0">Audit Logs</h6>
-                    <small class="text-muted">View Logs</small>
+            <a asp-action="AuditLogs" class="text-decoration-none d-block">
+                <div class="action-card-premium bg-soft-grad-rose">
+                    <div class="action-icon"><i class="bi bi-journal-text-fill text-accent-rose"></i></div>
+                    <div class="action-title">Audit Logs</div>
+                    <div class="action-subtitle">View Logs</div>
                 </div>
             </a>
         </div>
@@ -250,41 +236,41 @@
     @* Monthly Registrations + Sector-wise Statistics *@
     <div class="row g-4 mb-4">
         <div class="col-md-7">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom-0 pt-3 px-4">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Monthly Registrations <span class="small text-muted fw-normal">(Last 12 Months)</span></h6>
+            <div class="dashboard-card h-100">
+                <div class="card-head bg-soft-grad-teal text-accent-teal">
+                    <i class="bi bi-graph-up-arrow"></i> Monthly Registrations <span class="small opacity-75 fw-normal">(Last 12 Months)</span>
                 </div>
-                <div class="card-body px-3">
+                <div class="p-3">
                     <canvas id="registrationsChart" height="250"></canvas>
                 </div>
             </div>
         </div>
         <div class="col-md-5">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom-0 pt-3 px-4">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill text-purple me-2"></i>Sector-wise Statistics</h6>
+            <div class="dashboard-card h-100">
+                <div class="card-head bg-soft-grad-purple text-accent-purple">
+                    <i class="bi bi-pie-chart-fill"></i> Sector-wise Statistics
                 </div>
-                <div class="card-body p-0">
+                <div>
                     @if (Model.SectorStats.Any())
                     {
                         <div class="table-responsive" style="max-height:320px;">
-                            <table class="table table-hover mb-0 align-middle small">
-                                <thead class="table-light sticky-top">
+                            <table class="sector-table table mb-0 align-middle">
+                                <thead>
                                     <tr>
-                                        <th class="px-4 py-2">Sector</th>
-                                        <th class="text-center py-2">Candidates</th>
-                                        <th class="text-center py-2">Employers</th>
-                                        <th class="text-center py-2">Total</th>
+                                        <th>Sector</th>
+                                        <th class="text-center">Candidates</th>
+                                        <th class="text-center">Employers</th>
+                                        <th class="text-center">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var s in Model.SectorStats)
                                     {
                                         <tr>
-                                            <td class="px-4 py-2">@s.IndustryName</td>
-                                            <td class="text-center py-2"><span class="badge bg-teal-subtle text-teal rounded-pill px-3">@s.CandidateCount</span></td>
-                                            <td class="text-center py-2"><span class="badge bg-indigo-subtle text-indigo rounded-pill px-3">@s.EmployerCount</span></td>
-                                            <td class="text-center py-2 fw-medium">@(s.CandidateCount + s.EmployerCount)</td>
+                                            <td class="fw-medium">@s.IndustryName</td>
+                                            <td class="text-center"><span class="sector-badge teal">@s.CandidateCount</span></td>
+                                            <td class="text-center"><span class="sector-badge indigo">@s.EmployerCount</span></td>
+                                            <td class="text-center fw-bold" style="color:#111827;">@(s.CandidateCount + s.EmployerCount)</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -303,78 +289,66 @@
     @* Recent Registrations *@
     <div class="row g-4">
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom-0 pt-3 px-4">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-person-plus-fill text-teal me-2"></i>Recent Candidates</h6>
+            <div class="dashboard-card h-100">
+                <div class="card-head bg-soft-grad-teal text-accent-teal d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-person-plus-fill"></i> Recent Candidates</span>
+                    <a asp-action="Candidates" class="btn btn-sm rounded-pill px-3 fw-medium" style="background:rgba(255,255,255,0.85);color:#0e7490;">View All <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
-                <div class="card-body p-0">
+                <div>
                     @if (Model.RecentCandidates.Count > 0)
                     {
-                        <div class="list-group list-group-flush">
-                            @foreach (var c in Model.RecentCandidates)
-                            {
-                                <div class="list-group-item d-flex align-items-center justify-content-between px-4 py-3 border-0 border-bottom">
-                                    <div class="d-flex align-items-center">
-                                        <div class="rounded-circle bg-soft-teal d-flex align-items-center justify-content-center me-3" style="width:36px;height:36px;">
-                                            <i class="bi bi-person text-teal"></i>
-                                        </div>
-                                        <div>
-                                            <span class="fw-medium">@c.User?.FullName</span><br />
-                                            <small class="text-muted">@c.CreatedAt.ToString("dd MMM yyyy")</small>
-                                        </div>
+                        @foreach (var c in Model.RecentCandidates)
+                        {
+                            <div class="recent-item">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-squircle teal-bg"><i class="bi bi-person"></i></div>
+                                    <div>
+                                        <div class="item-name">@c.User?.FullName</div>
+                                        <div class="item-date">@c.CreatedAt.ToString("dd MMM yyyy")</div>
                                     </div>
-                                    <span class="badge rounded-pill bg-@(c.Status == HumanPlus.Domain.Enums.CandidateStatus.Active ? "success" : c.Status == HumanPlus.Domain.Enums.CandidateStatus.PendingVerification ? "warning text-dark" : "secondary")-subtle text-@(c.Status == HumanPlus.Domain.Enums.CandidateStatus.Active ? "success" : c.Status == HumanPlus.Domain.Enums.CandidateStatus.PendingVerification ? "warning" : "secondary") px-3 py-2">
-                                        @c.Status
-                                    </span>
                                 </div>
-                            }
-                        </div>
+                                <span class="badge rounded-pill px-3 py-2 fw-medium" style="background:@(c.Status == HumanPlus.Domain.Enums.CandidateStatus.Active ? "rgba(5,150,105,0.12)" : c.Status == HumanPlus.Domain.Enums.CandidateStatus.PendingVerification ? "rgba(217,119,6,0.12)" : "rgba(107,114,128,0.12)");color:@(c.Status == HumanPlus.Domain.Enums.CandidateStatus.Active ? "#059669" : c.Status == HumanPlus.Domain.Enums.CandidateStatus.PendingVerification ? "#d97706" : "#6b7280");">
+                                    @c.Status
+                                </span>
+                            </div>
+                        }
                     }
                     else
                     {
                         <div class="text-center py-4 text-muted"><i class="bi bi-inbox me-2"></i>No candidates yet</div>
                     }
                 </div>
-                <div class="card-footer bg-white border-top-0 text-end px-4 py-2">
-                    <a asp-action="Candidates" class="btn btn-sm btn-outline-teal rounded-pill px-3">View All <i class="bi bi-arrow-right ms-1"></i></a>
-                </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom-0 pt-3 px-4">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-building-add-fill text-indigo me-2"></i>Recent Employers</h6>
+            <div class="dashboard-card h-100">
+                <div class="card-head bg-soft-grad-indigo text-accent-indigo d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-building-add-fill"></i> Recent Employers</span>
+                    <a asp-action="Employers" class="btn btn-sm rounded-pill px-3 fw-medium" style="background:rgba(255,255,255,0.85);color:#4338ca;">View All <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
-                <div class="card-body p-0">
+                <div>
                     @if (Model.RecentEmployers.Count > 0)
                     {
-                        <div class="list-group list-group-flush">
-                            @foreach (var e in Model.RecentEmployers)
-                            {
-                                <div class="list-group-item d-flex align-items-center justify-content-between px-4 py-3 border-0 border-bottom">
-                                    <div class="d-flex align-items-center">
-                                        <div class="rounded-circle bg-soft-indigo d-flex align-items-center justify-content-center me-3" style="width:36px;height:36px;">
-                                            <i class="bi bi-building text-indigo"></i>
-                                        </div>
-                                        <div>
-                                            <span class="fw-medium">@e.CompanyName</span><br />
-                                            <small class="text-muted">@e.CreatedAt.ToString("dd MMM yyyy")</small>
-                                        </div>
+                        @foreach (var e in Model.RecentEmployers)
+                        {
+                            <div class="recent-item">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-squircle indigo-bg"><i class="bi bi-building"></i></div>
+                                    <div>
+                                        <div class="item-name">@e.CompanyName</div>
+                                        <div class="item-date">@e.CreatedAt.ToString("dd MMM yyyy")</div>
                                     </div>
-                                    <span class="badge rounded-pill bg-@(e.Status == HumanPlus.Domain.Enums.EmployerStatus.Active ? "success" : e.Status == HumanPlus.Domain.Enums.EmployerStatus.PendingVerification ? "warning text-dark" : "secondary")-subtle text-@(e.Status == HumanPlus.Domain.Enums.EmployerStatus.Active ? "success" : e.Status == HumanPlus.Domain.Enums.EmployerStatus.PendingVerification ? "warning" : "secondary") px-3 py-2">
-                                        @e.Status
-                                    </span>
                                 </div>
-                            }
-                        </div>
+                                <span class="badge rounded-pill px-3 py-2 fw-medium" style="background:@(e.Status == HumanPlus.Domain.Enums.EmployerStatus.Active ? "rgba(5,150,105,0.12)" : e.Status == HumanPlus.Domain.Enums.EmployerStatus.PendingVerification ? "rgba(217,119,6,0.12)" : "rgba(107,114,128,0.12)");color:@(e.Status == HumanPlus.Domain.Enums.EmployerStatus.Active ? "#059669" : e.Status == HumanPlus.Domain.Enums.EmployerStatus.PendingVerification ? "#d97706" : "#6b7280");">
+                                    @e.Status
+                                </span>
+                            </div>
+                        }
                     }
                     else
                     {
                         <div class="text-center py-4 text-muted"><i class="bi bi-inbox me-2"></i>No employers yet</div>
                     }
-                </div>
-                <div class="card-footer bg-white border-top-0 text-end px-4 py-2">
-                    <a asp-action="Employers" class="btn btn-sm btn-outline-indigo rounded-pill px-3">View All <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
@@ -390,6 +364,15 @@
             var employers = @Html.Raw(Json.Serialize(Model.MonthlyRegistrations.Select(m => m.EmployerCount)));
 
             var ctx = document.getElementById('registrationsChart').getContext('2d');
+
+            var tealGrad = ctx.createLinearGradient(0, 0, 0, 250);
+            tealGrad.addColorStop(0, 'rgba(13, 148, 136, 0.65)');
+            tealGrad.addColorStop(1, 'rgba(13, 148, 136, 0.08)');
+
+            var purpleGrad = ctx.createLinearGradient(0, 0, 0, 250);
+            purpleGrad.addColorStop(0, 'rgba(124, 58, 237, 0.65)');
+            purpleGrad.addColorStop(1, 'rgba(124, 58, 237, 0.08)');
+
             new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -398,18 +381,20 @@
                         {
                             label: 'Job Seekers',
                             data: candidates,
-                            backgroundColor: 'rgba(14, 116, 144, 0.7)',
-                            borderColor: 'rgba(14, 116, 144, 1)',
+                            backgroundColor: tealGrad,
+                            borderColor: 'rgba(13, 148, 136, 0.6)',
                             borderWidth: 1,
-                            borderRadius: 4
+                            borderRadius: 6,
+                            borderSkipped: false
                         },
                         {
                             label: 'Employers',
                             data: employers,
-                            backgroundColor: 'rgba(124, 58, 237, 0.7)',
-                            borderColor: 'rgba(124, 58, 237, 1)',
+                            backgroundColor: purpleGrad,
+                            borderColor: 'rgba(124, 58, 237, 0.6)',
                             borderWidth: 1,
-                            borderRadius: 4
+                            borderRadius: 6,
+                            borderSkipped: false
                         }
                     ]
                 },
@@ -419,14 +404,51 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                            labels: { boxWidth: 12, padding: 16 }
+                            align: 'end',
+                            labels: {
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                borderRadius: 3,
+                                padding: 16,
+                                usePointStyle: true,
+                                pointStyle: 'rectRounded',
+                                font: { size: 12, weight: '500' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            titleFont: { size: 12, weight: '600' },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 8,
+                            padding: 10,
+                            displayColors: true
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { stepSize: 1 }
+                            ticks: {
+                                stepSize: 1,
+                                font: { size: 11 },
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.04)',
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 10 },
+                                color: '#9ca3af',
+                                maxRotation: 45
+                            },
+                            grid: { display: false }
                         }
+                    },
+                    animation: {
+                        duration: 800,
+                        easing: 'easeOutQuart'
                     }
                 }
             });

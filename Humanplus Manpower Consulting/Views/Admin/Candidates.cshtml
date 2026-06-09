@@ -29,6 +29,15 @@
         <a asp-action="Candidates" class="btn btn-outline-teal rounded-pill btn-sm"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</a>
     </div>
 
+    <style>
+        .candidates-table-wrap {
+            overflow: visible;
+        }
+        .candidates-table-wrap .dropdown-menu {
+            z-index: 1055;
+        }
+    </style>
+
     @* Stat Cards *@
     <div class="row g-2 mb-4">
         <div class="col-md-2 col-4">
@@ -91,7 +100,7 @@
     @* Candidates Table *@
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-0">
-            <div class="table-responsive">
+            <div class="candidates-table-wrap">
                 <table class="table table-hover align-middle mb-0 small">
                     <thead class="table-light">
                         <tr>
@@ -287,7 +296,7 @@
 
                                         @* Status Dropdown *@
                                         <div class="dropdown d-inline">
-                                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Change Status">
+                                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Change Status" data-bs-boundary="viewport">
                                                 <i class="bi bi-arrow-repeat"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end small py-1" style="min-width:140px;max-height:250px;overflow-y:auto;">
@@ -439,6 +448,7 @@
     <script>
         // Confirmation modal
         var pendingForm = null;
+        var pendingVerifyCallback = null;
         document.querySelectorAll('[data-confirm]').forEach(function (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -448,7 +458,12 @@
             });
         });
         document.getElementById('confirmBtn').addEventListener('click', function () {
-            if (pendingForm) pendingForm.submit();
+            if (pendingVerifyCallback) {
+                pendingVerifyCallback();
+                pendingVerifyCallback = null;
+            } else if (pendingForm) {
+                pendingForm.submit();
+            }
         });
 
         // Assign to Job modal
@@ -471,7 +486,32 @@
                 modal.show();
                 fetch('/Admin/CandidateDocuments/' + id)
                     .then(function (r) { return r.text(); })
-                    .then(function (html) { content.innerHTML = html; })
+                    .then(function (html) {
+                        content.innerHTML = html;
+                        content.querySelectorAll('.verify-doc-form').forEach(function (form) {
+                            form.addEventListener('submit', function (e) {
+                                e.preventDefault();
+                                var row = e.target.closest('tr');
+                                var formData = new FormData(form);
+                                document.getElementById('confirmMessage').innerHTML = '<p class="mb-0 fw-medium">Verify this document?</p>';
+                                pendingVerifyCallback = function () {
+                                    fetch(form.action, {
+                                        method: 'POST',
+                                        body: new URLSearchParams(formData),
+                                        headers: { 'RequestVerificationToken': formData.get('__RequestVerificationToken') }
+                                    }).then(function (r) { return r.json(); })
+                                    .then(function (data) {
+                                        if (data.success) {
+                                            row.querySelector('td:nth-child(4)').innerHTML = '<span class="badge bg-success-subtle text-success"><i class="bi bi-check-circle me-1"></i>Verified</span>';
+                                            row.querySelector('td:nth-child(5)').innerHTML = '<span class="text-success small"><i class="bi bi-check-circle-fill me-1"></i>Done</span>';
+                                            bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+                                        }
+                                    });
+                                };
+                                new bootstrap.Modal(document.getElementById('confirmModal')).show();
+                            });
+                        });
+                    })
                     .catch(function () { content.innerHTML = '<div class="p-4 text-danger text-center">Failed to load documents</div>'; });
             });
         });

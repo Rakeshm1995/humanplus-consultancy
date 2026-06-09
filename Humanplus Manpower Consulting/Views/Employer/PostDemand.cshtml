@@ -7,91 +7,158 @@
 }
 
 <div class="container py-4">
-    <h2><i class="bi bi-plus-circle"></i> Post Manpower Demand</h2>
+
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="mb-0"><i class="bi bi-plus-circle"></i> Post Job Demand</h2>
+        <div>
+            <a asp-action="ManageDemands" class="btn btn-outline-secondary rounded-pill me-2"><i class="bi bi-list-check"></i> My Demands</a>
+            <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+        </div>
+    </div>
     <hr />
+
     <form asp-action="PostDemand" method="post">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Job Title</label>
-                <input asp-for="JobTitle" class="form-control" required />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Number of Openings</label>
-                <input asp-for="NumberOfOpenings" class="form-control" type="number" required />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Required Skills</label>
-                <input asp-for="RequiredSkills" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Qualification Required</label>
-                <select asp-for="QualificationId" asp-items='new SelectList(ViewBag.Qualifications ?? new List<Qualification>(), "Id", "Name")' class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Min Experience (Years)</label>
-                <input asp-for="MinExperience" class="form-control" type="number" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Max Experience (Years)</label>
-                <input asp-for="MaxExperience" class="form-control" type="number" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Min Salary</label>
-                <input asp-for="MinSalary" class="form-control" type="number" step="0.01" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Max Salary</label>
-                <input asp-for="MaxSalary" class="form-control" type="number" step="0.01" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Gender Preference</label>
-                <select asp-for="GenderPreference" asp-items="Html.GetEnumSelectList<Gender>()" class="form-select">
-                    <option value="">Any</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Min Age</label>
-                <input asp-for="MinAge" class="form-control" type="number" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Max Age</label>
-                <input asp-for="MaxAge" class="form-control" type="number" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Duty Hours</label>
-                <input asp-for="DutyHours" class="form-control" placeholder="e.g. 8 hours" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Work Location</label>
-                <input asp-for="WorkLocation" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Accommodation Details</label>
-                <input asp-for="AccommodationDetails" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Food Facility</label>
-                <input asp-for="FoodFacility" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Contract Duration (Months)</label>
-                <input asp-for="ContractDurationMonths" class="form-control" type="number" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Interview Date</label>
-                <input asp-for="InterviewDate" class="form-control" type="date" />
-            </div>
-            <div class="col-md-3">
-                <div class="form-check mt-4">
-                    <input asp-for="ImmediateJoining" class="form-check-input" />
-                    <label class="form-check-label">Immediate Joining</label>
+
+        @* Card 1: Job Details *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-briefcase me-2 text-primary"></i>Job Details</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Job Title <span class="text-danger">*</span></label>
+                        <input asp-for="JobTitle" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sector / Industry <span class="text-danger">*</span></label>
+                        <select asp-for="IndustryId" asp-items='new SelectList(ViewBag.Industries ?? new List<Industry>(), "Id", "Name")' class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Job Category <span class="text-danger">*</span></label>
+                        <select asp-for="JobCategoryId" asp-items='new SelectList(ViewBag.JobCategories ?? new List<JobCategory>(), "Id", "Name")' class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Required Skills <span class="text-danger">*</span></label>
+                        <input asp-for="RequiredSkills" class="form-control" placeholder="e.g. Welding, Fitting, Driving" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Number of Openings <span class="text-danger">*</span></label>
+                        <input asp-for="NumberOfOpenings" class="form-control" type="number" min="1" required />
+                    </div>
                 </div>
             </div>
-            <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary px-4">Post Demand</button>
+        </div>
+
+        @* Card 2: Qualification & Experience *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-mortarboard me-2 text-primary"></i>Qualification & Experience</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Qualification Required <span class="text-danger">*</span></label>
+                        <select asp-for="QualificationId" asp-items='new SelectList(ViewBag.Qualifications ?? new List<Qualification>(), "Id", "Name")' class="form-select" required>
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Min Experience (Years) <span class="text-danger">*</span></label>
+                        <input asp-for="MinExperience" class="form-control" type="number" min="0" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Max Experience (Years) <span class="text-danger">*</span></label>
+                        <input asp-for="MaxExperience" class="form-control" type="number" min="0" required />
+                    </div>
+                </div>
             </div>
         </div>
+
+        @* Card 3: Compensation & Hours *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-currency-rupee me-2 text-primary"></i>Compensation & Hours</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Min Salary <span class="text-danger">*</span></label>
+                        <input asp-for="MinSalary" class="form-control" type="number" step="0.01" min="0" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Max Salary <span class="text-danger">*</span></label>
+                        <input asp-for="MaxSalary" class="form-control" type="number" step="0.01" min="0" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Duty Hours <span class="text-danger">*</span></label>
+                        <input asp-for="DutyHours" class="form-control" placeholder="e.g. 8 hours / shift" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Work Location <span class="text-danger">*</span></label>
+                        <input asp-for="WorkLocation" class="form-control" placeholder="e.g. Mumbai, Pune" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Card 4: Facilities & Requirements *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-house-door me-2 text-primary"></i>Facilities & Requirements</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Accommodation Details <span class="text-danger">*</span></label>
+                        <input asp-for="AccommodationDetails" class="form-control" placeholder="e.g. Shared room, Company provided" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Food Facility <span class="text-danger">*</span></label>
+                        <input asp-for="FoodFacility" class="form-control" placeholder="e.g. Free meals, Subsidized" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Gender Preference <span class="text-danger">*</span></label>
+                        <select asp-for="GenderPreference" asp-items="Html.GetEnumSelectList<Gender>()" class="form-select" required>
+                            <option value="">Any</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Min Age <span class="text-danger">*</span></label>
+                        <input asp-for="MinAge" class="form-control" type="number" min="18" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Age <span class="text-danger">*</span></label>
+                        <input asp-for="MaxAge" class="form-control" type="number" min="18" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="form-check">
+                            <input asp-for="ImmediateJoining" class="form-check-input" />
+                            <label class="form-check-label fw-medium">Immediate Joining Required</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Card 5: Contract & Interview *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-calendar me-2 text-primary"></i>Contract & Interview</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Contract Duration (Months) <span class="text-danger">*</span></label>
+                        <input asp-for="ContractDurationMonths" class="form-control" type="number" min="1" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Interview Date <span class="text-danger">*</span></label>
+                        <input asp-for="InterviewDate" class="form-control" type="date" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mb-4">
+            <button type="submit" class="btn btn-primary rounded-pill px-5"><i class="bi bi-check-lg me-1"></i>Post Demand</button>
+        </div>
+
     </form>
+
 </div>

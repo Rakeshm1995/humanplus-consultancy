@@ -4,6 +4,7 @@ using HumanPlus.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HumanPlus.Infrastructure.Migrations
 {
     [DbContext(typeof(HumanPlusDbContext))]
-    partial class HumanPlusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260609050317_AddDeclarationAccepted")]
+    partial class AddDeclarationAccepted
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -420,9 +423,6 @@ namespace HumanPlus.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ApproximateHiringVolume")
-                        .HasColumnType("int");
-
                     b.Property<string>("BusinessType")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -462,12 +462,8 @@ namespace HumanPlus.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("IndustryId")
+                    b.Property<int>("IndustryId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ManpowerTypeRequired")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("OfficeAddress")
                         .HasMaxLength(500)
@@ -476,10 +472,6 @@ namespace HumanPlus.Infrastructure.Migrations
                     b.Property<string>("PinCode")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("ServiceLocations")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int?>("StateId")
                         .HasColumnType("int");
@@ -1547,7 +1539,8 @@ namespace HumanPlus.Infrastructure.Migrations
                     b.HasOne("HumanPlus.Domain.Entities.MasterData.Industry", "Industry")
                         .WithMany()
                         .HasForeignKey("IndustryId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("HumanPlus.Domain.Entities.MasterData.State", "State")
                         .WithMany()

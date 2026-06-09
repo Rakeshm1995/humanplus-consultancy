@@ -13,7 +13,7 @@
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        <script>document.addEventListener('DOMContentLoaded',function(){new bootstrap.Modal(document.getElementById('docSuccessModal')).show();});</script>
     }
 
     <div class="mb-4">
@@ -54,22 +54,25 @@
         </div>
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="declaration" required />
-                <label class="form-check-label fw-medium" for="declaration">
-                    I hereby declare that the information provided by me is true and correct.
-                </label>
+    <form asp-action="SaveDeclaration" method="post" id="declarationForm">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="declaration" name="isAccepted" value="true"
+                           checked="@(ViewBag.IsDeclarationAccepted == true ? "checked" : null)" />
+                    <input type="hidden" name="isAccepted" value="false" />
+                    <label class="form-check-label fw-medium" for="declaration">
+                        I hereby declare that the information provided by me is true and correct.
+                    </label>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="text-end mb-4">
-        <button type="button" class="btn btn-primary rounded-pill px-5" id="saveDocumentsBtn">
-            <i class="bi bi-check-lg me-1"></i>Save
-        </button>
-    </div>
+        <div class="text-end mb-4">
+            <button type="submit" class="btn btn-primary rounded-pill px-5" id="saveDocumentsBtn">
+                <i class="bi bi-check-lg me-1"></i>Save
+            </button>
+        </div>
+    </form>
 
     @* Validation Error Modal *@
     <div class="modal fade" id="docValidationModal" tabindex="-1" data-bs-backdrop="static">
@@ -87,6 +90,26 @@
         </div>
     </div>
 
+    @* Confirmation Modal *@
+    <div class="modal fade" id="docConfirmModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-question-circle-fill me-2"></i>Confirm</h6>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-file-earmark-check text-primary display-4 mb-2 d-block"></i>
+                    <h5 class="fw-bold">Save Documents?</h5>
+                    <p class="text-muted mb-0">Do you want to save these documents?</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4" id="confirmSaveBtn">Yes, Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @* Success Modal *@
     <div class="modal fade" id="docSuccessModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -98,7 +121,7 @@
                 <div class="modal-body text-center py-4">
                     <i class="bi bi-check-circle text-success display-4 mb-2 d-block"></i>
                     <h5 class="fw-bold">Documents Saved!</h5>
-                    <p class="text-muted mb-0">All required documents are uploaded and declaration is confirmed.</p>
+                    <p class="text-muted mb-0">Documents saved successfully!</p>
                 </div>
                 <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
                     <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">OK</button>
@@ -153,24 +176,38 @@
 
 @section Scripts {
     <script>
-        document.getElementById('saveDocumentsBtn').addEventListener('click', function () {
-            var errors = [];
-            var hasAadhaar = false, hasPolice = false;
-            document.querySelectorAll('.table tbody tr').forEach(function (row) {
-                var type = row.querySelector('td:first-child')?.textContent.trim();
-                if (type === 'Aadhaar') hasAadhaar = true;
-                if (type === 'PoliceVerification') hasPolice = true;
+        (function () {
+            var form = document.getElementById('declarationForm');
+            var saveConfirmed = false;
+
+            form.addEventListener('submit', function (e) {
+                if (saveConfirmed) return;
+
+                e.preventDefault();
+                var errors = [];
+                var hasAadhaar = false, hasPolice = false;
+                document.querySelectorAll('.table tbody tr').forEach(function (row) {
+                    var type = row.querySelector('td:first-child')?.textContent.trim();
+                    if (type === 'Aadhaar') hasAadhaar = true;
+                    if (type === 'PoliceVerification') hasPolice = true;
+                });
+                if (!hasAadhaar) errors.push('Aadhaar Card');
+                if (!hasPolice) errors.push('Police Verification');
+                var decl = document.getElementById('declaration');
+                if (!decl || !decl.checked) errors.push('Accept the declaration');
+
+                if (errors.length > 0) {
+                    document.getElementById('docValidationBody').innerHTML = '<p class="fw-medium">Please complete the following before saving:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                    new bootstrap.Modal(document.getElementById('docValidationModal')).show();
+                } else {
+                    new bootstrap.Modal(document.getElementById('docConfirmModal')).show();
+                }
             });
-            if (!hasAadhaar) errors.push('Aadhaar Card');
-            if (!hasPolice) errors.push('Police Verification');
-            var decl = document.getElementById('declaration');
-            if (!decl || !decl.checked) errors.push('Accept the declaration');
-            if (errors.length > 0) {
-                document.getElementById('docValidationBody').innerHTML = '<p class="fw-medium">Please complete the following before saving:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
-                new bootstrap.Modal(document.getElementById('docValidationModal')).show();
-            } else {
-                new bootstrap.Modal(document.getElementById('docSuccessModal')).show();
-            }
-        });
+
+            document.getElementById('confirmSaveBtn').addEventListener('click', function () {
+                saveConfirmed = true;
+                form.submit();
+            });
+        })();
     </script>
 }

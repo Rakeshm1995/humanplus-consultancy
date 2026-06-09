@@ -1,72 +1,292 @@
 @using HumanPlus.Domain.Entities.Employers
+@using HumanPlus.Domain.Entities.Jobs
+@using HumanPlus.Domain.Enums
 @model Employer
 @{
     ViewData["Title"] = "Employer Dashboard";
 }
 
 <div class="container py-4">
-    <h2><i class="bi bi-building"></i> Employer Dashboard - @Model.CompanyName</h2>
-    <hr />
+
+    @* Welcome Banner *@
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-building me-2 text-primary"></i>@Model.CompanyName</h4>
+            <p class="text-muted small mb-0">
+                <span class="badge bg-@(Model.Status == EmployerStatus.Active ? "success" : "warning") rounded-pill me-2">@Model.Status</span>
+                @if (Model.UpdatedAt.HasValue)
+                {
+                    <span>Last updated @Model.UpdatedAt.Value.ToString("dd-MMM-yyyy")</span>
+                }
+                else
+                {
+                    <span>Registered @Model.CreatedAt.ToString("dd-MMM-yyyy")</span>
+                }
+            </p>
+        </div>
+        <div>
+            <a asp-action="CompanyProfile" class="btn btn-outline-primary rounded-pill btn-sm"><i class="bi bi-pencil me-1"></i>Edit Profile</a>
+        </div>
+    </div>
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     }
 
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Total Demands</h5>
-                <span class="display-6 text-primary">@ViewBag.TotalDemands</span>
+    @* Stats Row *@
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-primary">@ViewBag.TotalDemands</div>
+                <div class="small text-muted">Total Demands</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Active</h5>
-                <span class="display-6 text-success">@ViewBag.ActiveDemands</span>
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-success">@ViewBag.ActiveDemands</div>
+                <div class="small text-muted">Active</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Fulfilled</h5>
-                <span class="display-6 text-info">@ViewBag.FulfilledDemands</span>
+        <div class="col-md-2 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-info">@ViewBag.FulfilledDemands</div>
+                <div class="small text-muted">Fulfilled</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 shadow-sm">
-                <h5>Status</h5>
-                <span class="badge bg-@(Model.Status == EmployerStatus.Active ? "success" : "warning") fs-6">@Model.Status</span>
+        <div class="col-md-3 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-warning">@ViewBag.PendingApproval</div>
+                <div class="small text-muted">Pending Approval</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-indigo">@ViewBag.UpcomingInterviews</div>
+                <div class="small text-muted">Upcoming Interviews</div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-building-gear display-6 text-primary"></i>
-                    <h5 class="mt-2">Company Profile</h5>
-                    <a asp-action="CompanyProfile" class="btn btn-outline-primary">Edit Profile</a>
+    @* Quick Actions Grid *@
+    <h5 class="fw-semibold mb-3"><i class="bi bi-grid-3x3-gap me-2"></i>Quick Actions</h5>
+    <div class="row g-3 mb-4">
+
+        @* 1. View Company Profile *@
+        <div class="col-md-4 col-6">
+            <a asp-action="CompanyProfile" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-primary d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-building-gear fs-5 text-primary"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">View Company Profile</h6>
+                        <small class="text-muted">Review and manage company details</small>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-plus-circle display-6 text-primary"></i>
-                    <h5 class="mt-2">Post Demand</h5>
-                    <a asp-action="PostDemand" class="btn btn-outline-primary">Post New Demand</a>
+
+        @* 2. Edit Profile *@
+        <div class="col-md-4 col-6">
+            <a asp-action="CompanyProfile" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-success d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-pencil-square fs-5 text-success"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Edit Profile</h6>
+                        <small class="text-muted">Update company and contact information</small>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-list-check display-6 text-primary"></i>
-                    <h5 class="mt-2">Manage Demands</h5>
-                    <a asp-action="ManageDemands" class="btn btn-outline-primary">View All</a>
+
+        @* 3. Post Job Demands *@
+        <div class="col-md-4 col-6">
+            <a asp-action="PostDemand" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-indigo d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-plus-circle fs-5 text-indigo"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Post Job Demands</h6>
+                        <small class="text-muted">Create new manpower requirement</small>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
+
+        @* 4. Manage Job Demands *@
+        <div class="col-md-4 col-6">
+            <a asp-action="ManageDemands" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-warning d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-list-check fs-5 text-warning"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Manage Job Demands</h6>
+                        <small class="text-muted">View and track all posted demands</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        @* 5. View Candidate Profiles *@
+        <div class="col-md-4 col-6">
+            <a asp-action="ManageDemands" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-teal d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-people fs-5 text-teal"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">View Candidate Profiles</h6>
+                        <small class="text-muted">Browse and search candidate database</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        @* 6. Track Hiring Progress *@
+        <div class="col-md-4 col-6">
+            <a asp-action="ManageDemands" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-purple d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-bar-chart-line fs-5 text-purple"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Track Hiring Progress</h6>
+                        <small class="text-muted">Monitor candidates through hiring pipeline</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        @* 7. Manage Interviews *@
+        <div class="col-md-4 col-6">
+            <a asp-action="ManageDemands" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-info d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-calendar-check fs-5 text-info"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Manage Interviews</h6>
+                        <small class="text-muted">Schedule and manage candidate interviews</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        @* 8. Download Reports *@
+        <div class="col-md-4 col-6">
+            <a asp-action="ManageDemands" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-danger d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-download fs-5 text-danger"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Download Reports</h6>
+                        <small class="text-muted">Generate hiring and activity reports</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        @* 9. Notifications *@
+        <div class="col-md-4 col-6">
+            <a asp-controller="Notification" asp-action="Index" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-primary d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-bell fs-5 text-primary"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Notifications</h6>
+                        <small class="text-muted">View alerts and updates</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        @* 10. Invoices / Commission *@
+        <div class="col-md-4 col-6">
+            <a asp-action="CompanyProfile" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-3 h-100 action-card">
+                    <div class="card-body text-center py-3">
+                        <div class="rounded-circle bg-soft-success d-inline-flex align-items-center justify-content-center mb-2" style="width:48px;height:48px;">
+                            <i class="bi bi-currency-rupee fs-5 text-success"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1">Invoices / Commission</h6>
+                        <small class="text-muted">View billing and commission details</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
     </div>
+
+    @* Recent Activity *@
+    @if (ViewBag.RecentDemands != null && ((List<JobDemand>)ViewBag.RecentDemands).Any())
+    {
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-activity me-2 text-primary"></i>Recent Job Demands</div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-2">Job Title</th>
+                            <th class="py-2">Openings</th>
+                            <th class="py-2">Status</th>
+                            <th class="py-2">Posted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in (List<JobDemand>)ViewBag.RecentDemands)
+                        {
+                            <tr>
+                                <td class="px-3 fw-medium">@d.JobTitle</td>
+                                <td>@d.NumberOfOpenings</td>
+                                <td>
+                                    <span class="badge bg-@(d.Status switch {
+                                        JobDemandStatus.PendingApproval => "warning text-dark",
+                                        JobDemandStatus.Approved => "success",
+                                        JobDemandStatus.CandidatesAssigned => "info",
+                                        JobDemandStatus.Fulfilled => "primary",
+                                        JobDemandStatus.Closed => "secondary",
+                                        JobDemandStatus.Cancelled => "danger",
+                                        _ => "secondary"
+                                    }) rounded-pill">@d.Status</span>
+                                </td>
+                                <td class="text-muted">@d.CreatedAt.ToString("dd-MMM-yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
 </div>
+
+@section Styles {
+    <style>
+        .action-card {
+            transition: transform .15s ease, box-shadow .15s ease;
+            cursor: pointer;
+        }
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+        }
+        .bg-soft-primary { background-color: rgba(13,110,253,.1); }
+        .bg-soft-success { background-color: rgba(25,135,84,.1); }
+        .bg-soft-warning { background-color: rgba(255,193,7,.1); }
+        .bg-soft-danger { background-color: rgba(220,53,69,.1); }
+        .bg-soft-info { background-color: rgba(13,202,240,.1); }
+        .bg-soft-indigo { background-color: rgba(102,16,242,.1); }
+        .bg-soft-teal { background-color: rgba(32,201,151,.1); }
+        .bg-soft-purple { background-color: rgba(111,66,193,.1); }
+        .text-indigo { color: #6610f2; }
+        .text-teal { color: #20c997; }
+        .text-purple { color: #6f42c1; }
+    </style>
+}

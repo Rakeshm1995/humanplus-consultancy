@@ -39,7 +39,7 @@
                             <td>
                                 @if (!doc.IsVerified)
                                 {
-                                    <form method="post" asp-action="VerifyDocument" asp-route-documentId="@doc.Id" class="d-inline">
+                                    <form method="post" asp-action="VerifyDocument" asp-route-documentId="@doc.Id" class="d-inline verify-doc-form">
                                         <button type="submit" class="btn btn-sm btn-outline-success" data-confirm="Verify this document?">
                                             <i class="bi bi-check-lg me-1"></i>Verify
                                         </button>

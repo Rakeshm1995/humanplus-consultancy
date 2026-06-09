@@ -6,77 +6,317 @@
 }
 
 <div class="container py-4">
-    <h2><i class="bi bi-building-gear"></i> Company Profile</h2>
+
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="mb-0"><i class="bi bi-building-gear"></i> Company Profile</h2>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
     <hr />
-    <form asp-action="SaveProfile" method="post">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Company Name</label>
-                <input asp-for="CompanyName" class="form-control" required />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Business Type</label>
-                <input asp-for="BusinessType" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Industry</label>
-                <select asp-for="IndustryId" asp-items='new SelectList(ViewBag.Industries, "Id", "Name")' class="form-select" required>
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">GST Number</label>
-                <input asp-for="GstNumber" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">CIN Number</label>
-                <input asp-for="CinNumber" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Website</label>
-                <input asp-for="Website" class="form-control" />
-            </div>
-            <div class="col-12">
-                <label class="form-label">Office Address</label>
-                <textarea asp-for="OfficeAddress" class="form-control" rows="2"></textarea>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">State</label>
-                <select asp-for="StateId" asp-items='new SelectList(ViewBag.States, "Id", "Name")' class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">District</label>
-                <select asp-for="DistrictId" asp-items='new SelectList(ViewBag.Districts, "Id", "Name")' class="form-select">
-                    <option value="">-- Select --</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">PIN Code</label>
-                <input asp-for="PinCode" class="form-control" />
-            </div>
-            <hr />
-            <h5>Contact Person</h5>
-            <div class="col-md-6">
-                <label class="form-label">Name</label>
-                <input asp-for="ContactPersonName" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Designation</label>
-                <input asp-for="ContactPersonDesignation" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Mobile</label>
-                <input asp-for="ContactPersonMobile" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Email</label>
-                <input asp-for="ContactPersonEmail" class="form-control" type="email" />
-            </div>
-            <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary px-4">Save</button>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <form asp-action="SaveProfile" method="post" id="companyProfileForm">
+
+        @* Company Details *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-building me-2 text-primary"></i>Company Details</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Company Name <span class="text-danger">*</span></label>
+                        <input asp-for="CompanyName" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Business Type <span class="text-danger">*</span></label>
+                        <input asp-for="BusinessType" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Industry Type <span class="text-danger">*</span></label>
+                        <select asp-for="IndustryId" asp-items='new SelectList(ViewBag.Industries, "Id", "Name")' class="form-select" required>
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">GST Number <span class="text-danger">*</span></label>
+                        <input asp-for="GstNumber" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">CIN Number <span class="text-muted">(Optional)</span></label>
+                        <input asp-for="CinNumber" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Company Website <span class="text-danger">*</span></label>
+                        <input asp-for="Website" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Office Address <span class="text-danger">*</span></label>
+                        <textarea asp-for="OfficeAddress" class="form-control" rows="2" required></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">State <span class="text-danger">*</span></label>
+                        <select asp-for="StateId" asp-items='new SelectList(ViewBag.States, "Id", "Name")' class="form-select" required>
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">District <span class="text-danger">*</span></label>
+                        <select asp-for="DistrictId" asp-items='new SelectList(ViewBag.Districts, "Id", "Name")' class="form-select" required>
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">PIN Code <span class="text-danger">*</span></label>
+                        <input asp-for="PinCode" class="form-control" required />
+                    </div>
+                </div>
             </div>
         </div>
+
+        @* Contact Person Details *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-person-badge me-2 text-primary"></i>Contact Person Details</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Contact Person Name <span class="text-danger">*</span></label>
+                        <input asp-for="ContactPersonName" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Designation <span class="text-danger">*</span></label>
+                        <input asp-for="ContactPersonDesignation" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                        <input asp-for="ContactPersonMobile" class="form-control" type="tel" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email ID <span class="text-danger">*</span></label>
+                        <input asp-for="ContactPersonEmail" class="form-control" type="email" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Employer Requirements *@
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-clipboard-check me-2 text-primary"></i>Employer Requirements</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Type of Manpower Required <span class="text-danger">*</span></label>
+                        <input asp-for="ManpowerTypeRequired" class="form-control" placeholder="e.g. Skilled, Semi-Skilled, Unskilled" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Service Locations <span class="text-danger">*</span></label>
+                        <input asp-for="ServiceLocations" class="form-control" placeholder="e.g. Mumbai, Pune, Nashik" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Approximate Hiring Volume <span class="text-danger">*</span></label>
+                        <input asp-for="ApproximateHiringVolume" class="form-control" type="number" min="1" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mb-4">
+            <button type="submit" class="btn btn-primary rounded-pill px-5"><i class="bi bi-check-lg me-1"></i>Save</button>
+        </div>
+
     </form>
+
+    @* Validation Error Modal *@
+    <div class="modal fade" id="validationModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Required Fields Missing</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3" id="validationModalBody"></div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                    <button type="button" class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Document Uploads *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold"><i class="bi bi-upload me-2 text-primary"></i>Document Uploads</div>
+        <div class="card-body">
+            <form asp-action="UploadEmployerDocument" method="post" enctype="multipart/form-data" class="row g-2 mb-3">
+                <div class="col-md-4">
+                    <select name="documentType" class="form-select" required>
+                        <option value="">-- Document Type --</option>
+                        <option value="GSTCertificate">GST Certificate <span class="text-danger">*</span></option>
+                        <option value="RegistrationCertificate">Company Registration Certificate <span class="text-danger">*</span></option>
+                        <option value="AddressProof">Address Proof <span class="text-danger">*</span></option>
+                        <option value="AuthorizationLetter">Authorization Letter <span class="text-danger">*</span></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <input type="file" name="file" class="form-control" required />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Upload</button>
+                </div>
+            </form>
+
+            @if (Model?.Documents?.Any() == true)
+            {
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Type</th>
+                            <th>File</th>
+                            <th>Uploaded</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model.Documents.OrderByDescending(d => d.UploadedAt))
+                        {
+                            <tr>
+                                <td>@doc.DocumentType</td>
+                                <td><a href="@doc.FilePath" target="_blank" class="text-decoration-none">@doc.OriginalFileName</a></td>
+                                <td class="small">@doc.UploadedAt.ToString("dd-MMM-yyyy")</td>
+                                <td>
+                                    @if (doc.IsVerified)
+                                    {
+                                        <span class="badge bg-success-subtle text-success rounded-pill"><i class="bi bi-check-circle me-1"></i>Verified</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning rounded-pill"><i class="bi bi-clock me-1"></i>Pending</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No documents uploaded yet.</p>
+            }
+        </div>
+    </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('companyProfileForm').addEventListener('submit', function (e) {
+            var errors = [];
+            document.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });
+
+            function checkText(id, label) {
+                var el = document.getElementById(id);
+                if (!el || el.value.trim() === '') { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+            function checkSelect(id, label) {
+                var el = document.getElementById(id);
+                if (!el || el.value === '') { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+            function checkNumber(id, label) {
+                var el = document.getElementById(id);
+                if (!el || parseFloat(el.value) <= 0) { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+
+            checkText('CompanyName', 'Company Name');
+            checkText('BusinessType', 'Business Type');
+            checkSelect('IndustryId', 'Industry Type');
+            var gst = document.getElementById('GstNumber');
+            if (gst) {
+                if (gst.value.trim() === '') { gst.classList.add('is-invalid'); errors.push('GST Number'); }
+                else if (gst.value.trim().length !== 15) { gst.classList.add('is-invalid'); errors.push('GST Number must be 15 characters'); }
+            }
+            checkText('Website', 'Company Website');
+            checkText('OfficeAddress', 'Office Address');
+            checkSelect('StateId', 'State');
+            checkSelect('DistrictId', 'District');
+            var pin = document.getElementById('PinCode');
+            if (pin) {
+                if (pin.value.trim() === '') { pin.classList.add('is-invalid'); errors.push('PIN Code'); }
+                else if (!/^\d{6}$/.test(pin.value.trim())) { pin.classList.add('is-invalid'); errors.push('PIN Code must be 6 digits'); }
+            }
+            checkText('ContactPersonName', 'Contact Person Name');
+            checkText('ContactPersonDesignation', 'Designation');
+            var mobile = document.getElementById('ContactPersonMobile');
+            if (mobile) {
+                if (mobile.value.trim() === '') { mobile.classList.add('is-invalid'); errors.push('Mobile Number'); }
+                else if (!/^\d{10}$/.test(mobile.value.trim())) { mobile.classList.add('is-invalid'); errors.push('Mobile Number must be 10 digits'); }
+            }
+            var email = document.getElementById('ContactPersonEmail');
+            if (email) {
+                if (email.value.trim() === '') { email.classList.add('is-invalid'); errors.push('Email ID'); }
+                else if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email.value.trim())) { email.classList.add('is-invalid'); errors.push('Invalid Email format'); }
+            }
+            checkText('ManpowerTypeRequired', 'Type of Manpower Required');
+            checkText('ServiceLocations', 'Service Locations');
+            checkNumber('ApproximateHiringVolume', 'Approximate Hiring Volume');
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                document.getElementById('validationModalBody').innerHTML = '<p class="fw-medium">Please fill the following required fields:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                new bootstrap.Modal(document.getElementById('validationModal')).show();
+            }
+        });
+
+        @if (TempData["ShowValidationModal"] != null)
+        {
+            <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var errors = [];
+                    @foreach (var key in ViewData.ModelState.Keys)
+                    {
+                        var state = ViewData.ModelState[key];
+                        if (state != null && state.Errors.Count > 0)
+                        {
+                            var displayName = key switch
+                            {
+                                "GstNumber" => "GST Number",
+                                "ContactPersonMobile" => "Mobile Number",
+                                "ContactPersonEmail" => "Email ID",
+                                "ApproximateHiringVolume" => "Approximate Hiring Volume",
+                                "ManpowerTypeRequired" => "Type of Manpower Required",
+                                "ServiceLocations" => "Service Locations",
+                                "ContactPersonName" => "Contact Person Name",
+                                "ContactPersonDesignation" => "Designation",
+                                "OfficeAddress" => "Office Address",
+                                "CompanyName" => "Company Name",
+                                "BusinessType" => "Business Type",
+                                "IndustryId" => "Industry Type",
+                                "StateId" => "State",
+                                "DistrictId" => "District",
+                                "PinCode" => "PIN Code",
+                                "Website" => "Company Website",
+                                _ => key
+                            };
+                            var msg = state.Errors[0].ErrorMessage;
+                            if (!string.IsNullOrEmpty(msg) && msg != key + " is required." && msg != "The " + key + " field is required.")
+                            {
+                                @:errors.push('@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(displayName + ": " + msg)');
+                            }
+                            else
+                            {
+                                @:errors.push('@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(displayName)');
+                            }
+                        }
+                    }
+                    if (errors.length > 0) {
+                        document.getElementById('validationModalBody').innerHTML = '<p class="fw-medium">Please fix the following fields:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                        new bootstrap.Modal(document.getElementById('validationModal')).show();
+                    }
+                });
+            </text>
+        }
+    </script>
+}

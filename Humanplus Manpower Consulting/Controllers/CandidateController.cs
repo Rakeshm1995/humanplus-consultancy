@@ -276,7 +276,27 @@ namespace Humanplus_Manpower_Consulting.Controllers
             var candidate = await _db.Candidates
                 .Include(c => c.Documents)
                 .FirstOrDefaultAsync(c => c.UserId == user!.Id);
+
+            if (candidate != null)
+                ViewBag.IsDeclarationAccepted = candidate.IsDeclarationAccepted;
+
             return View(candidate?.Documents ?? new List<CandidateDocument>());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveDeclaration(bool isAccepted)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var candidate = await _db.Candidates.FirstOrDefaultAsync(c => c.UserId == user!.Id);
+            if (candidate != null)
+            {
+                candidate.IsDeclarationAccepted = isAccepted;
+                candidate.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Documents saved successfully!";
+            }
+            return RedirectToAction(nameof(Documents));
         }
 
         [HttpGet]
