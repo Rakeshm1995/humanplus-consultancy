@@ -7,6 +7,7 @@ using HumanPlus.Domain.Enums;
 using HumanPlus.Infrastructure.Data;
 using Humanplus_Manpower_Consulting.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +20,14 @@ namespace Humanplus_Manpower_Consulting.Controllers
         private readonly HumanPlusDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly INotificationService _notificationService;
+        private readonly IWebHostEnvironment _env;
 
-        public CandidateController(HumanPlusDbContext db, UserManager<ApplicationUser> userManager, INotificationService notificationService)
+        public CandidateController(HumanPlusDbContext db, UserManager<ApplicationUser> userManager, INotificationService notificationService, IWebHostEnvironment env)
         {
             _db = db;
             _userManager = userManager;
             _notificationService = notificationService;
+            _env = env;
         }
 
         [HttpGet]
@@ -133,6 +136,35 @@ namespace Humanplus_Manpower_Consulting.Controllers
         public async Task<IActionResult> SaveProfile(Candidate model, List<int> SelectedSkillIds, List<CandidateEducation> Educations, List<CandidateExperience> Experiences, IFormFile? ProfileImage)
         {
             var user = await _userManager.GetUserAsync(User);
+            model.UserId = user!.Id;
+            model.User = null!;
+            ModelState.Remove("UserId");
+            ModelState.Remove("User");
+
+            if (!string.IsNullOrEmpty(model.AadhaarNumber) && !System.Text.RegularExpressions.Regex.IsMatch(model.AadhaarNumber, @"^\d{12}$"))
+                ModelState.AddModelError("AadhaarNumber", "Aadhaar Number must be exactly 12 digits.");
+            if (!string.IsNullOrEmpty(model.PanNumber))
+            {
+                model.PanNumber = model.PanNumber.ToUpperInvariant();
+                if (!System.Text.RegularExpressions.Regex.IsMatch(model.PanNumber, @"^[A-Z]{5}\d{4}[A-Z]$"))
+                    ModelState.AddModelError("PanNumber", "PAN Number format is invalid (e.g. ABCDE1234F).");
+            }
+            if (!string.IsNullOrEmpty(model.AlternateMobile) && !System.Text.RegularExpressions.Regex.IsMatch(model.AlternateMobile, @"^\d{10}$"))
+                ModelState.AddModelError("AlternateMobile", "Alternate Mobile must be exactly 10 digits.");
+            if (!string.IsNullOrEmpty(model.PinCode) && !System.Text.RegularExpressions.Regex.IsMatch(model.PinCode, @"^\d{6}$"))
+                ModelState.AddModelError("PinCode", "PIN Code must be exactly 6 digits.");
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Skills = await _db.Skills.Where(s => s.IsActive).ToListAsync();
+                ViewBag.Qualifications = await _db.Qualifications.Where(q => q.IsActive).ToListAsync();
+                ViewBag.Industries = await _db.Industries.Where(i => i.IsActive).ToListAsync();
+                ViewBag.Districts = await _db.Districts.Where(d => d.IsActive).ToListAsync();
+                ViewBag.States = await _db.States.Where(s => s.IsActive).ToListAsync();
+                TempData["ShowValidationModal"] = true;
+                return View("MyProfile", model);
+            }
+
             var existing = await _db.Candidates
                 .Include(c => c.Educations)
                 .Include(c => c.Experiences)
@@ -141,7 +173,6 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
             if (existing == null)
             {
-                model.UserId = user!.Id;
                 model.Status = CandidateStatus.NewRegistration;
                 _db.Candidates.Add(model);
                 await _db.SaveChangesAsync();
@@ -187,7 +218,7 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
             if (ProfileImage != null && ProfileImage.Length > 0)
             {
-                var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles", candidateId.ToString());
+                var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "profiles", candidateId.ToString());
                 Directory.CreateDirectory(uploadsDir);
                 var ext = Path.GetExtension(ProfileImage.FileName);
                 var fileName = $"photo_{DateTime.UtcNow:yyyyMMddHHmmss}{ext}";
@@ -340,7 +371,7 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 return RedirectToAction(nameof(Documents));
             }
 
-            var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "candidates", candidate.Id.ToString());
+            var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "candidates", candidate.Id.ToString());
             Directory.CreateDirectory(uploadsDir);
 
             var ext = Path.GetExtension(file.FileName);
@@ -361,7 +392,6 @@ namespace Humanplus_Manpower_Consulting.Controllers
             });
             await _db.SaveChangesAsync();
 
-            TempData["Success"] = "Document uploaded successfully.";
             return RedirectToAction(nameof(Documents));
         }
 
@@ -374,6 +404,7 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
             var applications = await _db.JobApplications
                 .Include(a => a.JobDemand)
+                    .ThenInclude(jd => jd.Employer)
                 .Where(a => a.CandidateId == candidate.Id)
                 .OrderByDescending(a => a.AppliedAt)
                 .ToListAsync();

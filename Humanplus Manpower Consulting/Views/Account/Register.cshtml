@@ -56,7 +56,28 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.getElementById('registerForm').addEventListener('submit', function (e) {
-            if (!this.checkValidity()) return;
+            var errors = [];
+            var fn = document.getElementById('FullName');
+            if (!fn.value.trim()) errors.push('Full Name is required.');
+            var ph = document.getElementById('PhoneNumber');
+            if (!ph.value.trim()) errors.push('Mobile Number is required.');
+            else if (!/^\d{10}$/.test(ph.value.trim())) errors.push('Mobile Number must be exactly 10 digits.');
+            var pw = document.getElementById('Password');
+            if (!pw.value) errors.push('Password is required.');
+            else if (pw.value.length < 6) errors.push('Password must be at least 6 characters.');
+            var cp = document.getElementById('ConfirmPassword');
+            if (pw.value !== cp.value) errors.push('Passwords do not match.');
+            if (errors.length) {
+                e.preventDefault();
+                var existing = document.getElementById('validationSummary');
+                if (existing) existing.remove();
+                var div = document.createElement('div');
+                div.id = 'validationSummary';
+                div.className = 'alert alert-danger alert-dismissible fade show';
+                div.innerHTML = '<ul class="mb-0">' + errors.map(function(e) { return '<li>' + e + '</li>'; }).join('') + '</ul><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                document.getElementById('registerForm').querySelector('.text-danger').after(div);
+                return;
+            }
             var btn = document.getElementById('registerBtn');
             btn.disabled = true;
             document.getElementById('btnText').textContent = 'Registering...';

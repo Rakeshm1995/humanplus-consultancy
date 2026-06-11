@@ -1,0 +1,87 @@
+﻿@{
+    ViewData["Title"] = "Schedule Interview";
+    var demands = (List<JobDemand>)ViewBag.JobDemands;
+    var selectedDemandId = (int?)ViewBag.SelectedDemandId;
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-calendar-plus me-2 text-indigo"></i>Schedule Interview</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Interviews" class="text-decoration-none">Interviews</a></li>
+                    <li class="breadcrumb-item active">Schedule</li>
+                </ol>
+            </nav>
+        </div>
+        <a asp-action="Interviews" class="btn btn-outline-secondary rounded-pill btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <form asp-action="ScheduleInterview" method="post" id="scheduleForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium">Job Demand <span class="text-danger">*</span></label>
+                        <select name="jobDemandId" id="jobDemandId" class="form-select" required>
+                            <option value="">-- Select Job Demand --</option>
+                            @foreach (var d in demands)
+                            {
+                                <option value="@d.Id" selected="@(d.Id == selectedDemandId)">@d.JobTitle - @(d.Employer?.CompanyName ?? "-")</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium">Candidate <span class="text-danger">*</span></label>
+                        <select name="candidateId" id="candidateId" class="form-select" required>
+                            <option value="">-- Select Job Demand First --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Interview Date <span class="text-danger">*</span></label>
+                        <input type="date" name="interviewDate" class="form-control" required min="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Location / Link</label>
+                        <input type="text" name="locationOrLink" class="form-control" placeholder="e.g. Office address or Zoom link" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Notes</label>
+                        <input type="text" name="notes" class="form-control" placeholder="Optional notes" />
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-indigo rounded-pill px-5"><i class="bi bi-check-lg me-1"></i>Schedule Interview</button>
+                        <a asp-action="Interviews" class="btn btn-outline-secondary rounded-pill px-4 ms-2">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('jobDemandId').addEventListener('change', function () {
+            var demandId = this.value;
+            var candidateSelect = document.getElementById('candidateId');
+            candidateSelect.innerHTML = '<option value="">Loading...</option>';
+            if (demandId) {
+                fetch('@Url.Action("GetCandidatesForDemand", "Admin")?jobDemandId=' + demandId)
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        candidateSelect.innerHTML = '<option value="">-- Select Candidate --</option>';
+                        data.forEach(function (c) {
+                            candidateSelect.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
+                        });
+                    })
+                    .catch(function () {
+                        candidateSelect.innerHTML = '<option value="">Error loading candidates</option>';
+                    });
+            } else {
+                candidateSelect.innerHTML = '<option value="">-- Select Job Demand First --</option>';
+            }
+        });
+    </script>
+}

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using HumanPlus.Domain.Entities.Employers;
 using HumanPlus.Domain.Entities.MasterData;
 using HumanPlus.Domain.Enums;
@@ -41,5 +41,7 @@ namespace HumanPlus.Domain.Entities.Jobs
 
         public ICollection<JobApplication> Applications { get; set; } = new List<JobApplication>();
         public ICollection<CandidateAssignment> Assignments { get; set; } = new List<CandidateAssignment>();
+        public ICollection<RecruiterAssignment> RecruiterAssignments { get; set; } = new List<RecruiterAssignment>();
     }
 }
+

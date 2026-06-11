@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0"><i class="bi bi-download me-2 text-primary"></i>Reports</h4>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Dashboard</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-primary">@ViewBag.TotalDemands</div>
+                <div class="small text-muted">Total Demands</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-success">@ViewBag.FulfilledDemands</div>
+                <div class="small text-muted">Fulfilled</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-info">@ViewBag.ActiveDemands</div>
+                <div class="small text-muted">Active</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-warning">@ViewBag.PendingApproval</div>
+                <div class="small text-muted">Pending Approval</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-primary">@ViewBag.TotalApplications</div>
+                <div class="small text-muted">Total Applications</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-indigo">@ViewBag.TotalInterviews</div>
+                <div class="small text-muted">Interviews Conducted</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-light h-100">
+                <div class="fw-bold fs-4 text-success">@ViewBag.TotalPlacements</div>
+                <div class="small text-muted">Total Placements</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body">
+            <canvas id="reportChart" height="100"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .text-indigo { color: #6610f2; }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById('reportChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Demands', 'Applications', 'Interviews', 'Placements'],
+                datasets: [{
+                    label: 'Count',
+                    data: [@ViewBag.TotalDemands, @ViewBag.TotalApplications, @ViewBag.TotalInterviews, @ViewBag.TotalPlacements],
+                    backgroundColor: ['rgba(13,110,253,.6)', 'rgba(102,16,242,.6)', 'rgba(13,202,240,.6)', 'rgba(25,135,84,.6)'],
+                    borderColor: ['#0d6efd', '#6610f2', '#0dcaf0', '#198754'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+    </script>
+}

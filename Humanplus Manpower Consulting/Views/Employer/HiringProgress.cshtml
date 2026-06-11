@@ -1,0 +1,70 @@
+@using HumanPlus.Domain.Entities.Jobs
+@using HumanPlus.Domain.Enums
+@model List<JobDemand>
+@{ ViewData["Title"] = "Hiring Progress"; }
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Hiring Progress</h4>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Dashboard</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No job demands posted yet.</div>
+    }
+    else
+    {
+        var appCounts = ViewBag.ApplicationCounts as Dictionary<int, int> ?? new();
+        var assignCounts = ViewBag.AssignmentCounts as Dictionary<int, int> ?? new();
+        var intCounts = ViewBag.InterviewCounts as Dictionary<int, int> ?? new();
+        var placeCounts = ViewBag.PlacementCounts as Dictionary<int, int> ?? new();
+
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-2">Job Title</th>
+                            <th class="py-2 text-center">Openings</th>
+                            <th class="py-2 text-center">Status</th>
+                            <th class="py-2 text-center">Applications</th>
+                            <th class="py-2 text-center">Assigned</th>
+                            <th class="py-2 text-center">Interviews</th>
+                            <th class="py-2 text-center">Placements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model)
+                        {
+                            var apps = appCounts.GetValueOrDefault(d.Id);
+                            var assigns = assignCounts.GetValueOrDefault(d.Id);
+                            var intvs = intCounts.GetValueOrDefault(d.Id);
+                            var places = placeCounts.GetValueOrDefault(d.Id);
+                            <tr>
+                                <td class="px-3 fw-medium">@d.JobTitle</td>
+                                <td class="text-center">@d.NumberOfOpenings</td>
+                                <td class="text-center">
+                                    <span class="badge bg-@(d.Status switch {
+                                        JobDemandStatus.PendingApproval => "warning text-dark",
+                                        JobDemandStatus.Approved => "success",
+                                        JobDemandStatus.CandidatesAssigned => "info",
+                                        JobDemandStatus.InterviewScheduled => "primary",
+                                        JobDemandStatus.Fulfilled => "success",
+                                        JobDemandStatus.Closed => "secondary",
+                                        JobDemandStatus.Cancelled => "danger",
+                                        _ => "secondary"
+                                    }) rounded-pill">@d.Status</span>
+                                </td>
+                                <td class="text-center fw-semibold">@apps</td>
+                                <td class="text-center fw-semibold">@assigns</td>
+                                <td class="text-center fw-semibold">@intvs</td>
+                                <td class="text-center fw-semibold">@places</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

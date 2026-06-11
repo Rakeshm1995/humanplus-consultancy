@@ -26,6 +26,15 @@ namespace Humanplus_Manpower_Consulting.Controllers
             return View(notifications);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUnreadCount()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Ok(0);
+            var count = await _notificationService.GetUnreadCountAsync(user.Id);
+            return Ok(count);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAsRead(int id)

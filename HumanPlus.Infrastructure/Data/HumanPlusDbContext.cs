@@ -1,4 +1,4 @@
-using HumanPlus.Domain.Entities.Candidates;
+﻿using HumanPlus.Domain.Entities.Candidates;
 using HumanPlus.Domain.Entities.Communication;
 using HumanPlus.Domain.Entities.Employers;
 using HumanPlus.Domain.Entities.Financials;
@@ -26,6 +26,7 @@ namespace HumanPlus.Infrastructure.Data
         public DbSet<JobDemand> JobDemands => Set<JobDemand>();
         public DbSet<JobApplication> JobApplications => Set<JobApplication>();
         public DbSet<CandidateAssignment> CandidateAssignments => Set<CandidateAssignment>();
+        public DbSet<RecruiterAssignment> RecruiterAssignments => Set<RecruiterAssignment>();
         public DbSet<Interview> Interviews => Set<Interview>();
         public DbSet<Placement> Placements => Set<Placement>();
         public DbSet<FeePayment> FeePayments => Set<FeePayment>();
@@ -217,6 +218,19 @@ namespace HumanPlus.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            builder.Entity<RecruiterAssignment>(e =>
+            {
+                e.HasOne(ra => ra.JobDemand)
+                    .WithMany(jd => jd.RecruiterAssignments)
+                    .HasForeignKey(ra => ra.JobDemandId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne(ra => ra.RecruiterUser)
+                    .WithMany()
+                    .HasForeignKey(ra => ra.RecruiterUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             builder.Entity<Interview>(e =>
             {
                 e.HasOne(i => i.JobDemand)
@@ -261,3 +275,5 @@ namespace HumanPlus.Infrastructure.Data
         }
     }
 }
+
+

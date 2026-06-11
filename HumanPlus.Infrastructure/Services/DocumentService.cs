@@ -1,4 +1,3 @@
-using System.IO;
 using HumanPlus.Application.Interfaces;
 using HumanPlus.Domain.Entities.Candidates;
 using QuestPDF.Fluent;
@@ -14,7 +13,7 @@ namespace HumanPlus.Infrastructure.Services
             QuestPDF.Settings.License = LicenseType.Community;
         }
 
-        public Task<byte[]> GenerateCandidateRegistrationFormAsync(Candidate candidate)
+        public Task<byte[]> GenerateCandidateRegistrationFormAsync(Candidate candidate, string baseUrl, string webRootPath)
         {
             var document = Document.Create(container =>
             {
@@ -39,7 +38,7 @@ namespace HumanPlus.Infrastructure.Services
                                 AddField(leftCol, "Full Name", candidate.User?.FullName);
                                 AddField(leftCol, "Father's Name", candidate.FatherName);
                                 AddField(leftCol, "Mother's Name", candidate.MotherName);
-                                AddField(leftCol, "Gender", candidate.Gender.ToString());
+                                AddField(leftCol, "Gender", candidate.Gender?.ToString() ?? "");
                                 AddField(leftCol, "Date of Birth", candidate.DateOfBirth?.ToString("dd-MMM-yyyy"));
                                 AddField(leftCol, "Marital Status", candidate.MaritalStatus?.ToString());
                                 AddField(leftCol, "Blood Group", candidate.BloodGroup);
@@ -53,7 +52,7 @@ namespace HumanPlus.Infrastructure.Services
 
                             if (!string.IsNullOrEmpty(candidate.ProfileImagePath))
                             {
-                                var imgPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", candidate.ProfileImagePath.TrimStart('/'));
+                                var imgPath = Path.Combine(webRootPath, candidate.ProfileImagePath.TrimStart('/'));
                                 if (File.Exists(imgPath))
                                 {
                                     row.ConstantItem(110).AlignTop().Image(imgPath).FitWidth();
@@ -161,7 +160,8 @@ namespace HumanPlus.Infrastructure.Services
                                 foreach (var doc in candidate.Documents)
                                 {
                                     table.Cell().Padding(2).Text(doc.DocumentType).FontSize(9);
-                                    table.Cell().Padding(2).Text(doc.OriginalFileName ?? "N/A").FontSize(9);
+                                    var fileUrl = $"{baseUrl}{doc.FilePath}";
+                                    table.Cell().Padding(2).Hyperlink(fileUrl).Text(doc.OriginalFileName ?? "N/A").FontSize(9);
                                     table.Cell().Padding(2).Text(doc.UploadedAt.ToString("dd-MMM-yyyy")).FontSize(9);
                                 }
                             });

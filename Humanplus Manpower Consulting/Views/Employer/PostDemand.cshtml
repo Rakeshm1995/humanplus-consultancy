@@ -17,7 +17,7 @@
     </div>
     <hr />
 
-    <form asp-action="PostDemand" method="post">
+    <form asp-action="PostDemand" method="post" id="postDemandForm" novalidate>
 
         @* Card 1: Job Details *@
         <div class="card shadow-sm mb-4">
@@ -30,13 +30,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Sector / Industry <span class="text-danger">*</span></label>
-                        <select asp-for="IndustryId" asp-items='new SelectList(ViewBag.Industries ?? new List<Industry>(), "Id", "Name")' class="form-select">
-                            <option value="">-- Select --</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Job Category <span class="text-danger">*</span></label>
-                        <select asp-for="JobCategoryId" asp-items='new SelectList(ViewBag.JobCategories ?? new List<JobCategory>(), "Id", "Name")' class="form-select">
+                        <select asp-for="IndustryId" asp-items='new SelectList(ViewBag.Industries ?? new List<Industry>(), "Id", "Name")' class="form-select" required>
                             <option value="">-- Select --</option>
                         </select>
                     </div>
@@ -145,7 +139,7 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Contract Duration (Months) <span class="text-danger">*</span></label>
-                        <input asp-for="ContractDurationMonths" class="form-control" type="number" min="1" required />
+                        <input asp-for="ContractDurationMonths" class="form-control" type="number" min="1" step="1" required />
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Interview Date <span class="text-danger">*</span></label>
@@ -161,4 +155,179 @@
 
     </form>
 
+    @* Validation Error Modal *@
+    <div class="modal fade" id="validationModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Required Fields Missing</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3" id="validationModalBody"></div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                    <button type="button" class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Success Modal *@
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white border-0">
+                    <h6 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Success</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3 text-center">
+                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <p class="mt-2 mb-0">@TempData["Success"]</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                    <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        @if (TempData["ShowSuccessModal"] != null)
+        {
+            <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    new bootstrap.Modal(document.getElementById('successModal')).show();
+                });
+            </text>
+        }
+
+        document.getElementById('postDemandForm').addEventListener('submit', function (e) {
+            var errors = [];
+            document.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });
+
+            function checkText(id, label) {
+                var el = document.getElementById(id);
+                if (!el || el.value.trim() === '') { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+            function checkSelect(id, label) {
+                var el = document.getElementById(id);
+                if (!el || el.value === '' || el.value === '0') { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+            function checkNumber(id, label) {
+                var el = document.getElementById(id);
+                if (!el || parseFloat(el.value) <= 0) { if (el) el.classList.add('is-invalid'); errors.push(label); }
+            }
+            function checkMin(id, min, label) {
+                var el = document.getElementById(id);
+                if (!el || parseFloat(el.value) < min) { if (el) el.classList.add('is-invalid'); errors.push(label + ' must be at least ' + min); }
+            }
+
+            checkText('JobTitle', 'Job Title');
+            checkSelect('IndustryId', 'Sector / Industry');
+            checkText('RequiredSkills', 'Required Skills');
+            checkNumber('NumberOfOpenings', 'Number of Openings');
+            checkSelect('QualificationId', 'Qualification Required');
+
+            var minExp = document.getElementById('MinExperience');
+            if (minExp && parseFloat(minExp.value) < 0) { minExp.classList.add('is-invalid'); errors.push('Min Experience must be 0 or more'); }
+            var maxExp = document.getElementById('MaxExperience');
+            if (maxExp && parseFloat(maxExp.value) < 0) { maxExp.classList.add('is-invalid'); errors.push('Max Experience must be 0 or more'); }
+            if (minExp && maxExp && minExp.value !== '' && maxExp.value !== '' && parseFloat(minExp.value) > parseFloat(maxExp.value)) {
+                minExp.classList.add('is-invalid'); maxExp.classList.add('is-invalid');
+                errors.push('Max Experience must be >= Min Experience');
+            }
+
+            checkNumber('MinSalary', 'Min Salary');
+            checkNumber('MaxSalary', 'Max Salary');
+            var minSal = document.getElementById('MinSalary');
+            var maxSal = document.getElementById('MaxSalary');
+            if (minSal && maxSal && minSal.value !== '' && maxSal.value !== '' && parseFloat(minSal.value) > parseFloat(maxSal.value)) {
+                minSal.classList.add('is-invalid'); maxSal.classList.add('is-invalid');
+                errors.push('Max Salary must be >= Min Salary');
+            }
+
+            checkText('DutyHours', 'Duty Hours');
+            checkText('WorkLocation', 'Work Location');
+            checkText('AccommodationDetails', 'Accommodation Details');
+            checkText('FoodFacility', 'Food Facility');
+
+            var gender = document.getElementById('GenderPreference');
+            if (gender && gender.value === '') { errors.push('Gender Preference'); }
+
+            checkMin('MinAge', 18, 'Min Age');
+            checkMin('MaxAge', 18, 'Max Age');
+            var minAge = document.getElementById('MinAge');
+            var maxAge = document.getElementById('MaxAge');
+            if (minAge && maxAge && minAge.value !== '' && maxAge.value !== '' && parseFloat(minAge.value) > parseFloat(maxAge.value)) {
+                minAge.classList.add('is-invalid'); maxAge.classList.add('is-invalid');
+                errors.push('Max Age must be >= Min Age');
+            }
+
+            checkNumber('ContractDurationMonths', 'Contract Duration');
+            var interview = document.getElementById('InterviewDate');
+            if (interview) {
+                if (interview.value.trim() === '') { interview.classList.add('is-invalid'); errors.push('Interview Date'); }
+                else if (new Date(interview.value) < new Date(new Date().toDateString())) { interview.classList.add('is-invalid'); errors.push('Interview Date must be today or later'); }
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                document.getElementById('validationModalBody').innerHTML = '<p class="fw-medium">Please fill the following required fields:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                new bootstrap.Modal(document.getElementById('validationModal')).show();
+            }
+        });
+
+        @if (TempData["ShowValidationModal"] != null)
+        {
+            <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var errors = [];
+                    @foreach (var key in ViewData.ModelState.Keys)
+                    {
+                        var state = ViewData.ModelState[key];
+                        if (state != null && state.Errors.Count > 0)
+                        {
+                            var displayName = key switch
+                            {
+                                "JobTitle" => "Job Title",
+                                "IndustryId" => "Sector / Industry",
+                                "RequiredSkills" => "Required Skills",
+                                "NumberOfOpenings" => "Number of Openings",
+                                "QualificationId" => "Qualification Required",
+                                "MinExperience" => "Min Experience",
+                                "MaxExperience" => "Max Experience",
+                                "MinSalary" => "Min Salary",
+                                "MaxSalary" => "Max Salary",
+                                "DutyHours" => "Duty Hours",
+                                "WorkLocation" => "Work Location",
+                                "AccommodationDetails" => "Accommodation Details",
+                                "FoodFacility" => "Food Facility",
+                                "GenderPreference" => "Gender Preference",
+                                "MinAge" => "Min Age",
+                                "MaxAge" => "Max Age",
+                                "ContractDurationMonths" => "Contract Duration",
+                                "InterviewDate" => "Interview Date",
+                                _ => key
+                            };
+                            var msg = state.Errors[0].ErrorMessage;
+                            if (!string.IsNullOrEmpty(msg) && msg != key + " is required." && msg != "The " + key + " field is required.")
+                            {
+                                @:errors.push('@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(displayName + ": " + msg)');
+                            }
+                            else
+                            {
+                                @:errors.push('@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(displayName)');
+                            }
+                        }
+                    }
+                    if (errors.length > 0) {
+                        document.getElementById('validationModalBody').innerHTML = '<p class="fw-medium">Please fix the following fields:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                        new bootstrap.Modal(document.getElementById('validationModal')).show();
+                    }
+                });
+            </text>
+        }
+    </script>
+}

@@ -17,7 +17,7 @@ namespace HumanPlus.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.27")
+                .HasAnnotation("ProductVersion", "8.0.28")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -63,7 +63,7 @@ namespace HumanPlus.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Gender")
+                    b.Property<int?>("Gender")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeclarationAccepted")
@@ -1106,6 +1106,38 @@ namespace HumanPlus.Infrastructure.Migrations
                     b.ToTable("Placements");
                 });
 
+            modelBuilder.Entity("HumanPlus.Domain.Entities.Jobs.RecruiterAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("JobDemandId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RecruiterUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobDemandId");
+
+                    b.HasIndex("RecruiterUserId");
+
+                    b.ToTable("RecruiterAssignment");
+                });
+
             modelBuilder.Entity("HumanPlus.Domain.Entities.MasterData.District", b =>
                 {
                     b.Property<int>("Id")
@@ -1710,6 +1742,25 @@ namespace HumanPlus.Infrastructure.Migrations
                     b.Navigation("JobDemand");
                 });
 
+            modelBuilder.Entity("HumanPlus.Domain.Entities.Jobs.RecruiterAssignment", b =>
+                {
+                    b.HasOne("HumanPlus.Domain.Entities.Jobs.JobDemand", "JobDemand")
+                        .WithMany("RecruiterAssignments")
+                        .HasForeignKey("JobDemandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HumanPlus.Domain.Entities.Identity.ApplicationUser", "RecruiterUser")
+                        .WithMany()
+                        .HasForeignKey("RecruiterUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("JobDemand");
+
+                    b.Navigation("RecruiterUser");
+                });
+
             modelBuilder.Entity("HumanPlus.Domain.Entities.MasterData.District", b =>
                 {
                     b.HasOne("HumanPlus.Domain.Entities.MasterData.State", "State")
@@ -1797,6 +1848,8 @@ namespace HumanPlus.Infrastructure.Migrations
                     b.Navigation("Applications");
 
                     b.Navigation("Assignments");
+
+                    b.Navigation("RecruiterAssignments");
                 });
 
             modelBuilder.Entity("HumanPlus.Domain.Entities.MasterData.State", b =>

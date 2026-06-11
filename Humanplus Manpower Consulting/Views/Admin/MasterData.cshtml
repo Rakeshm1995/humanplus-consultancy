@@ -17,8 +17,8 @@
             <div class="card shadow-sm">
                 <div class="card-header">Skills</div>
                 <div class="card-body">
-                    <form asp-action="AddSkill" method="post" class="input-group mb-2">
-                        <input name="name" class="form-control" placeholder="New skill..." required />
+                    <form asp-action="AddSkill" method="post" class="input-group mb-2 master-form">
+                        <input name="name" class="form-control" placeholder="New skill..." />
                         <button class="btn btn-primary">Add</button>
                     </form>
                     <div class="d-flex flex-wrap gap-1">
@@ -31,8 +31,8 @@
             <div class="card shadow-sm">
                 <div class="card-header">Industries</div>
                 <div class="card-body">
-                    <form asp-action="AddIndustry" method="post" class="input-group mb-2">
-                        <input name="name" class="form-control" placeholder="New industry..." required />
+                    <form asp-action="AddIndustry" method="post" class="input-group mb-2 master-form">
+                        <input name="name" class="form-control" placeholder="New industry..." />
                         <button class="btn btn-primary">Add</button>
                     </form>
                     <div class="d-flex flex-wrap gap-1">
@@ -45,8 +45,8 @@
             <div class="card shadow-sm">
                 <div class="card-header">Qualifications</div>
                 <div class="card-body">
-                    <form asp-action="AddQualification" method="post" class="input-group mb-2">
-                        <input name="name" class="form-control" placeholder="New qualification..." required />
+                    <form asp-action="AddQualification" method="post" class="input-group mb-2 master-form">
+                        <input name="name" class="form-control" placeholder="New qualification..." />
                         <button class="btn btn-primary">Add</button>
                     </form>
                     <div class="d-flex flex-wrap gap-1">
@@ -59,16 +59,16 @@
             <div class="card shadow-sm">
                 <div class="card-header">States & Districts</div>
                 <div class="card-body">
-                    <form asp-action="AddState" method="post" class="input-group mb-2">
-                        <input name="name" class="form-control" placeholder="New state..." required />
+                    <form asp-action="AddState" method="post" class="input-group mb-2 master-form">
+                        <input name="name" class="form-control" placeholder="New state..." />
                         <button class="btn btn-primary">Add</button>
                     </form>
-                    <form asp-action="AddDistrict" method="post" class="input-group mb-2">
-                        <select name="stateId" class="form-select" required>
+                    <form asp-action="AddDistrict" method="post" class="input-group mb-2 master-form">
+                        <select name="stateId" class="form-select">
                             <option value="">Select state...</option>
                             @foreach (var s in (List<State>)ViewBag.States) { <option value="@s.Id">@s.Name</option> }
                         </select>
-                        <input name="name" class="form-control" placeholder="District..." required />
+                        <input name="name" class="form-control" placeholder="District..." />
                         <button class="btn btn-primary">Add</button>
                     </form>
                     @foreach (var s in (List<State>)ViewBag.States)
@@ -82,3 +82,42 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="masterValidationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-1"></i>Validation Errors</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="masterValidationBody"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.master-form').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                var errors = [];
+                var inputs = form.querySelectorAll('input[name="name"]');
+                inputs.forEach(function (inp) {
+                    if (!inp.value.trim()) errors.push(inp.placeholder || 'Name is required.');
+                });
+                var selects = form.querySelectorAll('select');
+                selects.forEach(function (sel) {
+                    if (!sel.value) {
+                        var opts = sel.querySelector('option[value=""]');
+                        if (opts) errors.push('Please select a state.');
+                    }
+                });
+                if (errors.length) {
+                    e.preventDefault();
+                    document.getElementById('masterValidationBody').innerHTML = '<ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                    var modal = new bootstrap.Modal(document.getElementById('masterValidationModal'));
+                    modal.show();
+                }
+            });
+        });
+    </script>
+}

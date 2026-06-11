@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HumanPlus.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d40256d79837789a35d21b4c799f1a5f9d5ad1a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8959f0f062789175aec89fe15aecee2a0062bd0")]
 [assembly: System.Reflection.AssemblyProductAttribute("HumanPlus.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HumanPlus.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

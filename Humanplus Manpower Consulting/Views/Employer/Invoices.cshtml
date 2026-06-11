@@ -1,0 +1,60 @@
+@using HumanPlus.Domain.Entities.Financials
+@model List<Invoice>
+@{ ViewData["Title"] = "Invoices"; }
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0"><i class="bi bi-currency-rupee me-2 text-primary"></i>Invoices / Commission</h4>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary rounded-pill btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Dashboard</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No invoices found.</div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-2">Invoice #</th>
+                            <th class="py-2">Description</th>
+                            <th class="py-2">Amount</th>
+                            <th class="py-2">Issue Date</th>
+                            <th class="py-2">Due Date</th>
+                            <th class="py-2">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var inv in Model)
+                        {
+                            <tr>
+                                <td class="px-3 fw-medium">@inv.InvoiceNumber</td>
+                                <td>@(inv.Description ?? "-")</td>
+                                <td class="fw-semibold">@inv.Amount.ToString("N2")</td>
+                                <td>@inv.IssueDate.ToString("dd-MMM-yyyy")</td>
+                                <td>@(inv.DueDate?.ToString("dd-MMM-yyyy") ?? "-")</td>
+                                <td>
+                                    @if (inv.IsPaid)
+                                    {
+                                        <span class="badge bg-success rounded-pill">Paid</span>
+                                    }
+                                    else if (inv.DueDate.HasValue && inv.DueDate.Value < DateTime.UtcNow)
+                                    {
+                                        <span class="badge bg-danger rounded-pill">Overdue</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

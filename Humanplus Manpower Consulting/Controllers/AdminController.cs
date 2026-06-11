@@ -1,15 +1,18 @@
-using HumanPlus.Application.Interfaces;
+﻿using HumanPlus.Application.Interfaces;
 using HumanPlus.Domain.Entities.Candidates;
+using HumanPlus.Domain.Entities.Communication;
 using HumanPlus.Domain.Entities.Employers;
 using HumanPlus.Domain.Entities.Financials;
 using HumanPlus.Domain.Entities.Identity;
 using HumanPlus.Domain.Entities.Jobs;
 using HumanPlus.Domain.Entities.MasterData;
+using HumanPlus.Domain.Entities.System;
 using HumanPlus.Domain.Enums;
 using HumanPlus.Infrastructure.Data;
 using Humanplus_Manpower_Consulting.Filters;
 using Humanplus_Manpower_Consulting.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,14 +26,21 @@ namespace Humanplus_Manpower_Consulting.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IDocumentService _documentService;
         private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
+        private readonly ISmsService _smsService;
+        private readonly IWebHostEnvironment _env;
 
         public AdminController(HumanPlusDbContext db, UserManager<ApplicationUser> userManager,
-            IDocumentService documentService, INotificationService notificationService)
+            IDocumentService documentService, INotificationService notificationService,
+            IEmailService emailService, ISmsService smsService, IWebHostEnvironment env)
         {
             _db = db;
             _userManager = userManager;
             _documentService = documentService;
             _notificationService = notificationService;
+            _emailService = emailService;
+            _smsService = smsService;
+            _env = env;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -326,7 +336,8 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
             if (candidate == null) return NotFound();
 
-            var pdf = await _documentService.GenerateCandidateRegistrationFormAsync(candidate);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+            var pdf = await _documentService.GenerateCandidateRegistrationFormAsync(candidate, baseUrl, _env.WebRootPath);
             return File(pdf, "application/pdf", $"RegistrationForm_{candidate.User?.FullName?.Replace(" ", "_")}.pdf");
         }
 
@@ -365,6 +376,7 @@ namespace Humanplus_Manpower_Consulting.Controllers
             var query = _db.Employers
                 .Include(e => e.User)
                 .Include(e => e.Industry)
+                .Include(e => e.Subscriptions)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(status) && Enum.TryParse<EmployerStatus>(status, out var employerStatus))
@@ -393,6 +405,152 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 await _db.SaveChangesAsync();
                 TempData["Success"] = $"Employer status updated to {newStatus}";
             }
+            return RedirectToAction(nameof(Employers));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("ApproveEmployer")]
+        public async Task<IActionResult> ApproveEmployer(int employerId)
+        {
+            var employer = await _db.Employers.Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employerId);
+            if (employer != null)
+            {
+                employer.Status = EmployerStatus.Active;
+                employer.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+                if (employer.User != null)
+                    await _notificationService.SendNotificationAsync(employer.UserId, "Your employer account has been approved. You can now post job demands.", "Registration");
+                TempData["Success"] = $"Employer #{employerId} approved successfully";
+            }
+            return RedirectToAction(nameof(Employers));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("VerifyEmployerDocument")]
+        public async Task<IActionResult> VerifyEmployerDocument(int documentId)
+        {
+            var doc = await _db.EmployerDocuments.FindAsync(documentId);
+            if (doc != null)
+            {
+                doc.IsVerified = true;
+                await _db.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = "Document not found" });
+        }
+
+        public async Task<IActionResult> EmployerDocuments(int id)
+        {
+            var employer = await _db.Employers
+                .Include(e => e.Documents)
+                .FirstOrDefaultAsync(e => e.Id == id);
+            if (employer == null) return NotFound();
+            return PartialView("_EmployerDocuments", employer);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageSubscription(int employerId)
+        {
+            var employer = await _db.Employers.FindAsync(employerId);
+            if (employer == null) return NotFound();
+            var subscription = await _db.EmployerSubscriptions
+                .Where(s => s.EmployerId == employerId)
+                .OrderByDescending(s => s.EndDate)
+                .FirstOrDefaultAsync();
+            ViewBag.Employer = employer;
+            return View(subscription ?? new EmployerSubscription { EmployerId = employerId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("SaveSubscription")]
+        public async Task<IActionResult> SaveSubscription(EmployerSubscription model)
+        {
+            if (model.EndDate <= model.StartDate)
+            {
+                TempData["Error"] = "End date must be after start date.";
+                return RedirectToAction(nameof(ManageSubscription), new { employerId = model.EmployerId });
+            }
+
+            var existing = await _db.EmployerSubscriptions.FindAsync(model.Id);
+            if (existing != null)
+            {
+                existing.StartDate = model.StartDate;
+                existing.EndDate = model.EndDate;
+                existing.Amount = model.Amount;
+                existing.IsPaid = model.IsPaid;
+                existing.CreatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                _db.EmployerSubscriptions.Add(model);
+            }
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Subscription saved.";
+            return RedirectToAction(nameof(Employers));
+        }
+
+        public async Task<IActionResult> EmployerActivities(int id)
+        {
+            var employer = await _db.Employers.FindAsync(id);
+            if (employer == null) return NotFound();
+            var logs = await _db.AuditLogs
+                .Where(a => a.EntityType == "Employer" && a.EntityId == id)
+                .OrderByDescending(a => a.CreatedAt)
+                .Take(50)
+                .ToListAsync();
+            ViewBag.Employer = employer;
+            return PartialView("_EmployerActivities", logs);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("SendEmployerEmail")]
+        public async Task<IActionResult> SendEmployerEmail(int employerId, string subject, string body)
+        {
+            var employer = await _db.Employers.Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employerId);
+            if (employer?.User == null || string.IsNullOrWhiteSpace(employer.User.Email))
+            {
+                TempData["Error"] = "Employer has no email address.";
+                return RedirectToAction(nameof(Employers));
+            }
+            await _emailService.SendEmailAsync(employer.User.Email, subject, body);
+            _db.EmailLogs.Add(new EmailLog
+            {
+                UserId = employer.UserId,
+                ToEmail = employer.User.Email,
+                Subject = subject,
+                Body = body,
+                IsSent = true
+            });
+            await _db.SaveChangesAsync();
+            TempData["Success"] = $"Email sent to {employer.CompanyName}";
+            return RedirectToAction(nameof(Employers));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("SendEmployerSms")]
+        public async Task<IActionResult> SendEmployerSms(int employerId, string message)
+        {
+            var employer = await _db.Employers.Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employerId);
+            if (employer?.User == null || string.IsNullOrWhiteSpace(employer.User.PhoneNumber))
+            {
+                TempData["Error"] = "Employer has no phone number.";
+                return RedirectToAction(nameof(Employers));
+            }
+            await _smsService.SendSmsAsync(employer.User.PhoneNumber, message);
+            _db.SmsLogs.Add(new SmsLog
+            {
+                UserId = employer.UserId,
+                MobileNumber = employer.User.PhoneNumber,
+                Message = message,
+                IsSent = true
+            });
+            await _db.SaveChangesAsync();
+            TempData["Success"] = $"SMS sent to {employer.CompanyName}";
             return RedirectToAction(nameof(Employers));
         }
 
@@ -425,6 +583,254 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 TempData["Success"] = $"Demand status updated to {newStatus}";
             }
             return RedirectToAction(nameof(JobDemands));
+        }
+        // ===== FEATURE: Assign Recruiters =====
+
+        [HttpGet]
+        public async Task<IActionResult> JobDemandRecruiters(int jobDemandId)
+        {
+            var demand = await _db.JobDemands.FindAsync(jobDemandId);
+            if (demand == null) return NotFound();
+
+            var assignments = await _db.RecruiterAssignments
+                .Where(ra => ra.JobDemandId == jobDemandId)
+                .Include(ra => ra.RecruiterUser)
+                .ToListAsync();
+
+            var recruiters = await _userManager.GetUsersInRoleAsync("Recruiter");
+            ViewBag.Recruiters = recruiters.Where(u => u.IsActive).ToList();
+            ViewBag.JobDemand = demand;
+            return PartialView("_JobDemandRecruiters", assignments);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("AssignRecruiter")]
+        public async Task<IActionResult> AssignRecruiter(int jobDemandId, string recruiterUserId)
+        {
+            var exists = await _db.RecruiterAssignments
+                .AnyAsync(ra => ra.JobDemandId == jobDemandId && ra.RecruiterUserId == recruiterUserId);
+            if (!exists)
+            {
+                _db.RecruiterAssignments.Add(new RecruiterAssignment
+                {
+                    JobDemandId = jobDemandId,
+                    RecruiterUserId = recruiterUserId,
+                    AssignedAt = DateTime.UtcNow
+                });
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Recruiter assigned to job demand.";
+            }
+            else
+            {
+                TempData["Error"] = "Recruiter is already assigned to this demand.";
+            }
+            return RedirectToAction(nameof(JobDemands));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("RemoveRecruiter")]
+        public async Task<IActionResult> RemoveRecruiter(int assignmentId)
+        {
+            var assignment = await _db.RecruiterAssignments.FindAsync(assignmentId);
+            if (assignment != null)
+            {
+                _db.RecruiterAssignments.Remove(assignment);
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Recruiter removed from demand.";
+            }
+            return RedirectToAction(nameof(JobDemands));
+        }
+
+        // ===== FEATURE: Automated Candidate Matching =====
+
+        [HttpGet]
+        public async Task<IActionResult> MatchCandidates(int jobDemandId)
+        {
+            var demand = await _db.JobDemands
+                .Include(j => j.Employer)
+                .FirstOrDefaultAsync(j => j.Id == jobDemandId);
+            if (demand == null) return NotFound();
+
+            var candidates = await _db.Candidates
+                .Include(c => c.User)
+                .Include(c => c.Skills).ThenInclude(cs => cs.Skill)
+                .Include(c => c.Educations).ThenInclude(ce => ce.Qualification)
+                .Where(c => c.Status == CandidateStatus.Active || c.Status == CandidateStatus.Verified)
+                .ToListAsync();
+
+            var matched = new List<dynamic>();
+            var demandSkills = (demand.RequiredSkills ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(s => s.ToLowerInvariant()).ToHashSet();
+
+            foreach (var c in candidates)
+            {
+                var score = 0;
+                var totalWeight = 0;
+
+                // Skills match (weight: 40)
+                var candidateSkillNames = c.Skills.Select(s => s.Skill.Name.ToLowerInvariant()).ToHashSet();
+                var matchedSkills = demandSkills.Count > 0 ? demandSkills.Intersect(candidateSkillNames).Count() : 0;
+                var skillPct = demandSkills.Count > 0 ? (double)matchedSkills / demandSkills.Count : 0;
+                score += (int)(skillPct * 40);
+                totalWeight += 40;
+
+                // Industry match (weight: 15)
+                if (demand.IndustryId != null && c.PreferredIndustryId == demand.IndustryId)
+                    score += 15;
+                totalWeight += 15;
+
+                // Experience fit (weight: 15)
+                if (c.TotalExperienceYears != null)
+                {
+                    var minExp = demand.MinExperience ?? 0;
+                    var maxExp = demand.MaxExperience ?? 99;
+                    if (c.TotalExperienceYears >= minExp && c.TotalExperienceYears <= maxExp)
+                        score += 15;
+                    else if (c.TotalExperienceYears >= minExp - 1 && c.TotalExperienceYears <= maxExp + 1)
+                        score += 8;
+                }
+                totalWeight += 15;
+
+                // Salary fit (weight: 10)
+                if (c.ExpectedSalary != null && demand.MaxSalary != null)
+                {
+                    if (c.ExpectedSalary <= demand.MaxSalary)
+                        score += 10;
+                    else if (c.ExpectedSalary <= demand.MaxSalary * 1.2m)
+                        score += 5;
+                }
+                totalWeight += 10;
+
+                // Location preference (weight: 10)
+                if (!string.IsNullOrEmpty(c.PreferredLocation) && !string.IsNullOrEmpty(demand.WorkLocation))
+                {
+                    if (c.PreferredLocation.Contains(demand.WorkLocation, StringComparison.OrdinalIgnoreCase) ||
+                        demand.WorkLocation.Contains(c.PreferredLocation, StringComparison.OrdinalIgnoreCase))
+                        score += 10;
+                }
+                totalWeight += 10;
+
+                // Qualification match (weight: 10)
+                if (demand.QualificationId != null && c.Educations.Any(e => e.QualificationId == demand.QualificationId))
+                    score += 10;
+                totalWeight += 10;
+
+                var pct = totalWeight > 0 ? (int)Math.Round((double)score / totalWeight * 100) : 0;
+
+                matched.Add(new
+                {
+                    Candidate = c,
+                    Score = pct,
+                    MatchedSkills = matchedSkills,
+                    TotalDemandSkills = demandSkills.Count
+                });
+            }
+
+            var ranked = matched.OrderByDescending(m => m.Score).ThenBy(m => m.Candidate.CreatedAt).ToList();
+            ViewBag.JobDemand = demand;
+            return View(ranked);
+        }
+
+        // ===== FEATURE: Admin Interview Scheduling =====
+
+        [HttpGet]
+        public async Task<IActionResult> Interviews(string? status, int? jobDemandId)
+        {
+            var query = _db.Interviews
+                .Include(i => i.JobDemand)
+                .Include(i => i.Candidate).ThenInclude(c => c.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status) && bool.TryParse(status, out var isSelected))
+                query = query.Where(i => i.IsSelected == isSelected);
+
+            if (jobDemandId != null)
+                query = query.Where(i => i.JobDemandId == jobDemandId);
+
+            ViewBag.SelectedStatus = status;
+            ViewBag.JobDemandId = jobDemandId;
+            return View(await query.OrderByDescending(i => i.InterviewDate).ToListAsync());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ScheduleInterview(int? jobDemandId)
+        {
+            ViewBag.JobDemands = await _db.JobDemands
+                .Where(j => j.Status == JobDemandStatus.Approved || j.Status == JobDemandStatus.CandidatesAssigned || j.Status == JobDemandStatus.InterviewScheduled)
+                .Include(j => j.Employer)
+                .OrderByDescending(j => j.CreatedAt)
+                .ToListAsync();
+
+            ViewBag.SelectedDemandId = jobDemandId;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("ScheduleInterview")]
+        public async Task<IActionResult> ScheduleInterview(int jobDemandId, int candidateId, DateTime interviewDate, string? locationOrLink, string? notes)
+        {
+            if (interviewDate < DateTime.UtcNow.Date)
+            {
+                TempData["Error"] = "Interview date must be today or later.";
+                return RedirectToAction(nameof(ScheduleInterview), new { jobDemandId });
+            }
+
+            _db.Interviews.Add(new Interview
+            {
+                JobDemandId = jobDemandId,
+                CandidateId = candidateId,
+                InterviewDate = interviewDate,
+                LocationOrLink = locationOrLink,
+                Notes = notes,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            var demand = await _db.JobDemands.FindAsync(jobDemandId);
+            if (demand != null && demand.Status == JobDemandStatus.Approved)
+            {
+                demand.Status = JobDemandStatus.InterviewScheduled;
+                demand.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Interview scheduled successfully.";
+            return RedirectToAction(nameof(Interviews));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuditLog("UpdateInterviewStatus")]
+        public async Task<IActionResult> UpdateInterviewStatus(int id, bool isSelected)
+        {
+            var interview = await _db.Interviews.FindAsync(id);
+            if (interview != null)
+            {
+                interview.IsSelected = isSelected;
+                await _db.SaveChangesAsync();
+                TempData["Success"] = isSelected ? "Candidate marked as selected." : "Candidate selection removed.";
+            }
+            return RedirectToAction(nameof(Interviews));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCandidatesForDemand(int jobDemandId)
+        {
+            var assigned = await _db.CandidateAssignments
+                .Where(ca => ca.JobDemandId == jobDemandId)
+                .Include(ca => ca.Candidate).ThenInclude(c => c.User)
+                .Select(ca => new { ca.Candidate.Id, Name = ca.Candidate.User.FullName })
+                .ToListAsync();
+
+            var applied = await _db.JobApplications
+                .Where(ja => ja.JobDemandId == jobDemandId)
+                .Include(ja => ja.Candidate).ThenInclude(c => c.User)
+                .Select(ja => new { ja.Candidate.Id, Name = ja.Candidate.User.FullName })
+                .ToListAsync();
+
+            var all = assigned.Concat(applied).DistinctBy(x => x.Id).OrderBy(x => x.Name).ToList();
+            return Json(all);
         }
 
         public IActionResult Reports() => View();
@@ -506,3 +912,5 @@ namespace Humanplus_Manpower_Consulting.Controllers
         }
     }
 }
+
+

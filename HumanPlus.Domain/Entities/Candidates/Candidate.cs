@@ -13,7 +13,7 @@ namespace HumanPlus.Domain.Entities.Candidates
 
         [MaxLength(100)] public string? FatherName { get; set; }
         [MaxLength(100)] public string? MotherName { get; set; }
-        public Gender Gender { get; set; }
+        public Gender? Gender { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public MaritalStatus? MaritalStatus { get; set; }
         [MaxLength(10)] public string? BloodGroup { get; set; }

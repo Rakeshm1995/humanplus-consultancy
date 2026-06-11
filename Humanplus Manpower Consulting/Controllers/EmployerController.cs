@@ -5,6 +5,7 @@ using HumanPlus.Domain.Entities.MasterData;
 using HumanPlus.Domain.Enums;
 using HumanPlus.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,13 @@ namespace Humanplus_Manpower_Consulting.Controllers
     {
         private readonly HumanPlusDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _env;
 
-        public EmployerController(HumanPlusDbContext db, UserManager<ApplicationUser> userManager)
+        public EmployerController(HumanPlusDbContext db, UserManager<ApplicationUser> userManager, IWebHostEnvironment env)
         {
             _db = db;
             _userManager = userManager;
+            _env = env;
         }
 
         [HttpGet]
@@ -79,8 +82,15 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveProfile(Employer model)
+        public async Task<IActionResult> SaveProfile(Employer model,
+            IFormFile? GstCertificate, IFormFile? RegistrationCertificate, IFormFile? AddressProof, IFormFile? AuthorizationLetter)
         {
+            var user = await _userManager.GetUserAsync(User);
+            model.UserId = user!.Id;
+            model.User = null!;
+            ModelState.Remove("UserId");
+            ModelState.Remove("User");
+
             ViewBag.Industries = await _db.Industries.Where(i => i.IsActive).ToListAsync();
             ViewBag.Districts = await _db.Districts.Where(d => d.IsActive).ToListAsync();
             ViewBag.States = await _db.States.Where(s => s.IsActive).ToListAsync();
@@ -112,14 +122,18 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 return View("CompanyProfile", model);
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            var existing = await _db.Employers.FirstOrDefaultAsync(e => e.UserId == user!.Id);
+            var existing = await _db.Employers
+                .Include(e => e.Documents)
+                .FirstOrDefaultAsync(e => e.UserId == user!.Id);
+
+            int employerId;
 
             if (existing == null)
             {
-                model.UserId = user!.Id;
                 model.Status = EmployerStatus.PendingVerification;
                 _db.Employers.Add(model);
+                await _db.SaveChangesAsync();
+                employerId = model.Id;
             }
             else
             {
@@ -141,53 +155,50 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 existing.ServiceLocations = model.ServiceLocations;
                 existing.ApproximateHiringVolume = model.ApproximateHiringVolume;
                 existing.UpdatedAt = DateTime.UtcNow;
+                employerId = existing.Id;
             }
 
             await _db.SaveChangesAsync();
+
+            var docs = new[] {
+                (file: GstCertificate, type: "GSTCertificate"),
+                (file: RegistrationCertificate, type: "RegistrationCertificate"),
+                (file: AddressProof, type: "AddressProof"),
+                (file: AuthorizationLetter, type: "AuthorizationLetter")
+            };
+
+            var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "employers", employerId.ToString());
+            var hasNewDocs = false;
+
+            foreach (var (file, docType) in docs)
+            {
+                if (file == null || file.Length == 0) continue;
+                hasNewDocs = true;
+
+                Directory.CreateDirectory(uploadsDir);
+                var ext = Path.GetExtension(file.FileName);
+                var fileName = $"{docType}_{DateTime.UtcNow:yyyyMMddHHmmss}{ext}";
+                var filePath = Path.Combine(uploadsDir, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                _db.EmployerDocuments.Add(new EmployerDocument
+                {
+                    EmployerId = employerId,
+                    DocumentType = docType,
+                    FilePath = $"/uploads/employers/{employerId}/{fileName}",
+                    OriginalFileName = file.FileName
+                });
+            }
+
+            if (hasNewDocs)
+                await _db.SaveChangesAsync();
+
             TempData["Success"] = "Company profile saved.";
-            return RedirectToAction(nameof(CompanyProfile));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UploadEmployerDocument(string documentType, IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                TempData["Error"] = "Please select a file.";
-                return RedirectToAction(nameof(CompanyProfile));
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            var employer = await _db.Employers.FirstOrDefaultAsync(e => e.UserId == user!.Id);
-            if (employer == null)
-            {
-                TempData["Error"] = "Please complete your company profile first.";
-                return RedirectToAction(nameof(CompanyProfile));
-            }
-
-            var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "employers", employer.Id.ToString());
-            Directory.CreateDirectory(uploadsDir);
-
-            var ext = Path.GetExtension(file.FileName);
-            var fileName = $"{documentType}_{DateTime.UtcNow:yyyyMMddHHmmss}{ext}";
-            var filePath = Path.Combine(uploadsDir, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            _db.EmployerDocuments.Add(new EmployerDocument
-            {
-                EmployerId = employer.Id,
-                DocumentType = documentType,
-                FilePath = $"/uploads/employers/{employer.Id}/{fileName}",
-                OriginalFileName = file.FileName
-            });
-            await _db.SaveChangesAsync();
-
-            TempData["Success"] = "Document uploaded successfully.";
+            TempData["ShowSuccessModal"] = true;
             return RedirectToAction(nameof(CompanyProfile));
         }
 
@@ -196,7 +207,6 @@ namespace Humanplus_Manpower_Consulting.Controllers
         {
             ViewBag.Qualifications = await _db.Qualifications.Where(q => q.IsActive).ToListAsync();
             ViewBag.Industries = await _db.Industries.Where(i => i.IsActive).ToListAsync();
-            ViewBag.JobCategories = await _db.JobCategories.Where(j => j.IsActive).ToListAsync();
             return View();
         }
 
@@ -204,6 +214,11 @@ namespace Humanplus_Manpower_Consulting.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PostDemand(JobDemand model)
         {
+            ViewBag.Qualifications = await _db.Qualifications.Where(q => q.IsActive).ToListAsync();
+            ViewBag.Industries = await _db.Industries.Where(i => i.IsActive).ToListAsync();
+
+            ModelState.Remove("Employer");
+
             var user = await _userManager.GetUserAsync(User);
             var employer = await _db.Employers.FirstOrDefaultAsync(e => e.UserId == user!.Id);
             if (employer == null)
@@ -212,12 +227,44 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 return RedirectToAction(nameof(CompanyProfile));
             }
 
+            if (string.IsNullOrWhiteSpace(model.JobTitle)) ModelState.AddModelError("JobTitle", "Job Title is required.");
+            if (model.IndustryId == null || model.IndustryId <= 0) ModelState.AddModelError("IndustryId", "Sector / Industry is required.");
+            if (string.IsNullOrWhiteSpace(model.RequiredSkills)) ModelState.AddModelError("RequiredSkills", "Required Skills is required.");
+            if (model.NumberOfOpenings <= 0) ModelState.AddModelError("NumberOfOpenings", "Number of Openings must be greater than 0.");
+            if (model.QualificationId == null || model.QualificationId <= 0) ModelState.AddModelError("QualificationId", "Qualification is required.");
+            if (model.MinExperience == null || model.MinExperience < 0) ModelState.AddModelError("MinExperience", "Min Experience is required.");
+            if (model.MaxExperience == null || model.MaxExperience < 0) ModelState.AddModelError("MaxExperience", "Max Experience is required.");
+            if (model.MinExperience != null && model.MaxExperience != null && model.MinExperience > model.MaxExperience)
+                ModelState.AddModelError("MaxExperience", "Max Experience must be >= Min Experience.");
+            if (model.MinSalary == null || model.MinSalary <= 0) ModelState.AddModelError("MinSalary", "Min Salary must be greater than 0.");
+            if (model.MaxSalary == null || model.MaxSalary <= 0) ModelState.AddModelError("MaxSalary", "Max Salary must be greater than 0.");
+            if (model.MinSalary != null && model.MaxSalary != null && model.MinSalary > model.MaxSalary)
+                ModelState.AddModelError("MaxSalary", "Max Salary must be >= Min Salary.");
+            if (string.IsNullOrWhiteSpace(model.DutyHours)) ModelState.AddModelError("DutyHours", "Duty Hours is required.");
+            if (string.IsNullOrWhiteSpace(model.WorkLocation)) ModelState.AddModelError("WorkLocation", "Work Location is required.");
+            if (string.IsNullOrWhiteSpace(model.AccommodationDetails)) ModelState.AddModelError("AccommodationDetails", "Accommodation Details is required.");
+            if (string.IsNullOrWhiteSpace(model.FoodFacility)) ModelState.AddModelError("FoodFacility", "Food Facility is required.");
+            if (model.MinAge < 18) ModelState.AddModelError("MinAge", "Min Age must be at least 18.");
+            if (model.MaxAge < 18) ModelState.AddModelError("MaxAge", "Max Age must be at least 18.");
+            if (model.MinAge > model.MaxAge)
+                ModelState.AddModelError("MaxAge", "Max Age must be >= Min Age.");
+            if (model.ContractDurationMonths == null || model.ContractDurationMonths <= 0) ModelState.AddModelError("ContractDurationMonths", "Contract Duration must be greater than 0.");
+            if (model.InterviewDate == null) ModelState.AddModelError("InterviewDate", "Interview Date is required.");
+            else if (model.InterviewDate < DateTime.UtcNow.Date) ModelState.AddModelError("InterviewDate", "Interview Date must be today or later.");
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ShowValidationModal"] = true;
+                return View(model);
+            }
+
             model.EmployerId = employer.Id;
             model.Status = JobDemandStatus.PendingApproval;
             _db.JobDemands.Add(model);
             await _db.SaveChangesAsync();
 
             TempData["Success"] = "Job demand posted and pending admin approval.";
+            TempData["ShowSuccessModal"] = true;
             return RedirectToAction(nameof(ManageDemands));
         }
 
@@ -258,6 +305,112 @@ namespace Humanplus_Manpower_Consulting.Controllers
 
             ViewBag.JobDemand = job;
             return View(candidates);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Interviews()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var employer = await _db.Employers.FirstOrDefaultAsync(e => e.UserId == user!.Id);
+            if (employer == null) return RedirectToAction(nameof(CompanyProfile));
+
+            var demandIds = await _db.JobDemands
+                .Where(j => j.EmployerId == employer.Id)
+                .Select(j => j.Id)
+                .ToListAsync();
+
+            var interviews = await _db.Interviews
+                .Include(i => i.JobDemand)
+                .Include(i => i.Candidate).ThenInclude(c => c.User)
+                .Where(i => demandIds.Contains(i.JobDemandId))
+                .OrderByDescending(i => i.InterviewDate)
+                .ToListAsync();
+
+            return View(interviews);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> HiringProgress(int? jobDemandId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var employer = await _db.Employers.FirstOrDefaultAsync(e => e.UserId == user!.Id);
+            if (employer == null) return RedirectToAction(nameof(CompanyProfile));
+
+            var demands = await _db.JobDemands
+                .Where(j => j.EmployerId == employer.Id)
+                .OrderByDescending(j => j.CreatedAt)
+                .ToListAsync();
+
+            var demandIds = demands.Select(d => d.Id).ToList();
+
+            ViewBag.ApplicationCounts = await _db.JobApplications
+                .Where(a => demandIds.Contains(a.JobDemandId))
+                .GroupBy(a => a.JobDemandId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+            ViewBag.AssignmentCounts = await _db.CandidateAssignments
+                .Where(a => demandIds.Contains(a.JobDemandId))
+                .GroupBy(a => a.JobDemandId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+            ViewBag.InterviewCounts = await _db.Interviews
+                .Where(i => demandIds.Contains(i.JobDemandId))
+                .GroupBy(i => i.JobDemandId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+            ViewBag.PlacementCounts = await _db.Placements
+                .Where(p => demandIds.Contains(p.JobDemandId))
+                .GroupBy(p => p.JobDemandId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+            return View(demands);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Reports()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var employer = await _db.Employers.FirstOrDefaultAsync(e => e.UserId == user!.Id);
+            if (employer == null) return RedirectToAction(nameof(CompanyProfile));
+
+            var demands = await _db.JobDemands
+                .Where(j => j.EmployerId == employer.Id)
+                .ToListAsync();
+
+            var totalDemands = demands.Count;
+            var fulfilled = demands.Count(j => j.Status == JobDemandStatus.Fulfilled);
+            var active = demands.Count(j => j.Status == JobDemandStatus.Approved || j.Status == JobDemandStatus.CandidatesAssigned);
+            var pending = demands.Count(j => j.Status == JobDemandStatus.PendingApproval);
+
+            var demandIds = demands.Select(d => d.Id).ToList();
+            var totalPlacements = await _db.Placements.CountAsync(p => demandIds.Contains(p.JobDemandId));
+            var totalInterviews = await _db.Interviews.CountAsync(i => demandIds.Contains(i.JobDemandId));
+            var totalApplications = await _db.JobApplications.CountAsync(a => demandIds.Contains(a.JobDemandId));
+
+            ViewBag.TotalDemands = totalDemands;
+            ViewBag.FulfilledDemands = fulfilled;
+            ViewBag.ActiveDemands = active;
+            ViewBag.PendingApproval = pending;
+            ViewBag.TotalPlacements = totalPlacements;
+            ViewBag.TotalInterviews = totalInterviews;
+            ViewBag.TotalApplications = totalApplications;
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Invoices()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var employer = await _db.Employers.FirstOrDefaultAsync(e => e.UserId == user!.Id);
+            if (employer == null) return RedirectToAction(nameof(CompanyProfile));
+
+            var invoices = await _db.Invoices
+                .Where(i => i.EmployerId == employer.Id)
+                .OrderByDescending(i => i.IssueDate)
+                .ToListAsync();
+
+            return View(invoices);
         }
     }
 }

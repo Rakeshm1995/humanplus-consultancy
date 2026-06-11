@@ -1,0 +1,60 @@
+﻿@model List<RecruiterAssignment>
+@{
+    var demand = (JobDemand)ViewBag.JobDemand;
+    var recruiters = (List<ApplicationUser>)ViewBag.Recruiters;
+}
+
+<div class="modal-header bg-indigo text-white border-0">
+    <h6 class="modal-title"><i class="bi bi-person-badge me-2"></i>Recruiters for: @demand.JobTitle</h6>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body p-3">
+    @if (Model.Any())
+    {
+        <table class="table table-sm align-middle mb-3">
+            <thead class="table-light">
+                <tr>
+                    <th>Recruiter</th>
+                    <th>Assigned</th>
+                    <th style="width:50px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ra in Model)
+                {
+                    <tr>
+                        <td class="fw-medium">@(ra.RecruiterUser?.FullName ?? ra.RecruiterUserId)</td>
+                        <td class="text-muted small">@ra.AssignedAt.ToString("dd-MMM-yy hh:mm tt")</td>
+                        <td>
+                            <form asp-action="RemoveRecruiter" method="post" class="d-inline" data-confirm="Remove this recruiter?">
+                                <input type="hidden" name="assignmentId" value="@ra.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1" title="Remove"><i class="bi bi-x-lg"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-muted mb-3"><i class="bi bi-inbox me-1"></i>No recruiters assigned yet.</p>
+    }
+
+    <hr />
+    <form asp-action="AssignRecruiter" method="post" class="row g-2 align-items-end">
+        <input type="hidden" name="jobDemandId" value="@demand.Id" />
+        <div class="col-8">
+            <select name="recruiterUserId" class="form-select form-select-sm" required>
+                <option value="">-- Select Recruiter --</option>
+                @foreach (var r in recruiters)
+                {
+                    <option value="@r.Id">@r.FullName (@r.PhoneNumber)</option>
+                }
+            </select>
+        </div>
+        <div class="col-4">
+            <button type="submit" class="btn btn-indigo btn-sm rounded-pill w-100"><i class="bi bi-plus-lg me-1"></i>Add</button>
+        </div>
+    </form>
+</div>

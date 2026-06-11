@@ -1,0 +1,54 @@
+@using HumanPlus.Domain.Entities.Employers
+@model EmployerSubscription
+@{
+    ViewData["Title"] = "Manage Subscription";
+    var employer = ViewBag.Employer as Employer;
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-credit-card me-2 text-primary"></i>Manage Subscription</h4>
+            <p class="text-muted small mb-0">@employer?.CompanyName</p>
+        </div>
+        <a asp-action="Employers" class="btn btn-outline-secondary rounded-pill btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Employers</a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-4">
+            <form asp-action="SaveSubscription" method="post">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="EmployerId" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                        <input asp-for="StartDate" class="form-control" type="date" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">End Date <span class="text-danger">*</span></label>
+                        <input asp-for="EndDate" class="form-control" type="date" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Amount</label>
+                        <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="form-check">
+                            <input asp-for="IsPaid" class="form-check-input" />
+                            <label class="form-check-label fw-medium">Payment Received</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5"><i class="bi bi-check-lg me-1"></i>Save Subscription</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

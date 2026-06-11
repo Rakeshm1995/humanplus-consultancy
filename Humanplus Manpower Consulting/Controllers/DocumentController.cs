@@ -3,6 +3,7 @@ using HumanPlus.Domain.Entities.Candidates;
 using HumanPlus.Domain.Entities.Identity;
 using HumanPlus.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,12 +16,14 @@ namespace Humanplus_Manpower_Consulting.Controllers
         private readonly IDocumentService _documentService;
         private readonly HumanPlusDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _env;
 
-        public DocumentController(IDocumentService documentService, HumanPlusDbContext db, UserManager<ApplicationUser> userManager)
+        public DocumentController(IDocumentService documentService, HumanPlusDbContext db, UserManager<ApplicationUser> userManager, IWebHostEnvironment env)
         {
             _documentService = documentService;
             _db = db;
             _userManager = userManager;
+            _env = env;
         }
 
         [Authorize(Roles = "JobSeeker")]
@@ -45,7 +48,8 @@ namespace Humanplus_Manpower_Consulting.Controllers
                 return RedirectToAction("MyProfile", "Candidate");
             }
 
-            var pdf = await _documentService.GenerateCandidateRegistrationFormAsync(candidate);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+            var pdf = await _documentService.GenerateCandidateRegistrationFormAsync(candidate, baseUrl, _env.WebRootPath);
             return File(pdf, "application/pdf", $"RegistrationForm_{candidate.User?.FullName?.Replace(" ", "_")}.pdf");
         }
 

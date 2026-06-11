@@ -1,0 +1,70 @@
+﻿@using HumanPlus.Domain.Entities.Employers
+@model Employer
+
+<div class="modal fade" id="employerDocsModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h6 class="modal-title"><i class="bi bi-file-earmark me-2"></i>Documents - @Model.CompanyName</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3">
+                @if (Model.Documents != null && Model.Documents.Any())
+                {
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-2">Type</th>
+                                <th>File</th>
+                                <th>Uploaded</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var doc in Model.Documents.OrderByDescending(d => d.UploadedAt))
+                            {
+                                <tr id="edoc-row-@doc.Id">
+                                    <td class="px-2 fw-medium">@doc.DocumentType</td>
+                                    <td><a href="@doc.FilePath" target="_blank" class="text-decoration-none">@doc.OriginalFileName</a></td>
+                                    <td class="small">@doc.UploadedAt.ToString("dd-MMM-yyyy")</td>
+                                    <td id="edoc-status-@doc.Id">
+                                        @if (doc.IsVerified)
+                                        {
+                                            <span class="badge bg-success rounded-pill"><i class="bi bi-check-circle me-1"></i>Verified</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark rounded-pill"><i class="bi bi-clock me-1"></i>Pending</span>
+                                        }
+                                    </td>
+                                    <td class="text-center" id="edoc-action-@doc.Id">
+                                        @if (!doc.IsVerified)
+                                        {
+                                            <form method="post" asp-action="VerifyEmployerDocument" asp-route-documentId="@doc.Id" class="d-inline verify-edoc-form">
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                                    <i class="bi bi-check-lg me-1"></i>Verify
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success small"><i class="bi bi-check-circle-fill me-1"></i>Done</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0 py-3">No documents uploaded yet.</p>
+                }
+            </div>
+            <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

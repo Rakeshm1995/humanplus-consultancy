@@ -429,6 +429,10 @@
                 var el = document.getElementById(id);
                 if (!el || parseFloat(el.value) <= 0) { if (el) el.classList.add('is-invalid'); errors.push(label); }
             }
+            function checkFormat(id, regex, label) {
+                var el = document.getElementById(id);
+                if (el && el.value.trim() !== '' && !regex.test(el.value.trim())) { el.classList.add('is-invalid'); errors.push(label + ' format is invalid'); }
+            }
 
             checkText('FatherName', "Father's Name");
             checkText('MotherName', "Mother's Name");
@@ -436,6 +440,9 @@
             checkText('DateOfBirth', 'Date of Birth');
             checkSelect('MaritalStatus', 'Marital Status');
             checkText('AadhaarNumber', 'Aadhaar Number');
+            checkFormat('AadhaarNumber', /^\d{12}$/, 'Aadhaar Number');
+            checkFormat('PanNumber', /^[A-Z]{5}\d{4}[A-Z]$/, 'PAN Number');
+            checkFormat('AlternateMobile', /^\d{10}$/, 'Alternate Mobile');
             checkText('LanguagesKnown', 'Languages Known');
 
             checkText('CurrentAddress', 'Current Address');
@@ -443,6 +450,7 @@
             checkSelect('StateId', 'State');
             checkSelect('DistrictId', 'District');
             checkText('PinCode', 'PIN Code');
+            checkFormat('PinCode', /^\d{6}$/, 'PIN Code');
 
             checkSelect('PreferredIndustryId', 'Preferred Industry');
             checkText('PreferredLocation', 'Preferred Location');
@@ -508,6 +516,11 @@
                     permanentAddr.value = this.value;
                 }
             });
+            // On page load, auto-check if addresses already match
+            if (currentAddr.value.trim() !== '' && currentAddr.value.trim() === permanentAddr.value.trim()) {
+                sameAsCurrent.checked = true;
+                permanentAddr.readOnly = true;
+            }
         }
 
         @if (TempData["ShowProfileCreatedModal"] != null)
@@ -523,6 +536,43 @@
             <text>
                 document.addEventListener('DOMContentLoaded', function () {
                     new bootstrap.Modal(document.getElementById('profileUpdatedModal')).show();
+                });
+            </text>
+        }
+
+        @if (TempData["ShowValidationModal"] != null)
+        {
+            <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var errors = [];
+                    @foreach (var key in ViewData.ModelState.Keys)
+                    {
+                        var state = ViewData.ModelState[key];
+                        if (state != null && state.Errors.Count > 0)
+                        {
+                            var displayName = key switch
+                            {
+                                "AadhaarNumber" => "Aadhaar Number",
+                                "PanNumber" => "PAN Number",
+                                "AlternateMobile" => "Alternate Mobile",
+                                "PinCode" => "PIN Code",
+                                _ => key
+                            };
+                            var msg = state.Errors[0].ErrorMessage;
+                            if (!string.IsNullOrEmpty(msg) && msg != key + " is required." && msg != "The " + key + " field is required.")
+                            {
+                                @:errors.push('@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(displayName + ": " + msg)');
+                            }
+                            else
+                            {
+                                @:errors.push('@System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(displayName)');
+                            }
+                        }
+                    }
+                    if (errors.length > 0) {
+                        document.getElementById('validationModalBody').innerHTML = '<p class="fw-medium">Please fix the following fields:</p><ul class="mb-0">' + errors.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+                        new bootstrap.Modal(document.getElementById('validationModal')).show();
+                    }
                 });
             </text>
         }

@@ -1,0 +1,105 @@
+﻿@model List<Interview>
+@{
+    ViewData["Title"] = "Manage Interviews";
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-calendar-event me-2 text-indigo"></i>Interview Management</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Interviews</li>
+                </ol>
+            </nav>
+        </div>
+        <a asp-action="ScheduleInterview" class="btn btn-indigo rounded-pill btn-sm"><i class="bi bi-plus-lg me-1"></i>Schedule Interview</a>
+    </div>
+
+    <form method="get" class="row g-2 mb-3 align-items-end">
+        <div class="col-md-3">
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="true" selected="@(ViewBag.SelectedStatus == "true")">Selected</option>
+                <option value="false" selected="@(ViewBag.SelectedStatus == "false")">Pending</option>
+            </select>
+        </div>
+    </form>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="candidates-table-wrap">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-3">Candidate</th>
+                            <th class="py-3">Job Demand</th>
+                            <th class="py-3">Employer</th>
+                            <th class="py-3">Date</th>
+                            <th class="py-3">Location</th>
+                            <th class="text-center py-3">Status</th>
+                            <th class="text-center py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model)
+                        {
+                            <tr>
+                                <td class="px-3 fw-medium">@(i.Candidate?.User?.FullName ?? "-")</td>
+                                <td>@(i.JobDemand?.JobTitle ?? "-")</td>
+                                <td>@(i.JobDemand?.Employer?.CompanyName ?? "-")</td>
+                                <td class="text-nowrap">@(i.InterviewDate.ToString("dd-MMM-yyyy"))</td>
+                                <td>@(i.LocationOrLink ?? "-")</td>
+                                <td class="text-center">
+                                    @if (i.IsSelected)
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3">Selected</span>
+                                    }
+                                    else if (i.InterviewDate < DateTime.UtcNow)
+                                    {
+                                        <span class="badge bg-secondary rounded-pill px-3">Done</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark rounded-pill px-3">Pending</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="dropdown d-inline">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end small py-1">
+                                            <li>
+                                                <form asp-action="UpdateInterviewStatus" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@i.Id" />
+                                                    <input type="hidden" name="isSelected" value="true" />
+                                                    <button type="submit" class="dropdown-item py-1" disabled="@(i.IsSelected)"><i class="bi bi-check-circle me-1 text-success"></i>Mark Selected</button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form asp-action="UpdateInterviewStatus" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@i.Id" />
+                                                    <input type="hidden" name="isSelected" value="false" />
+                                                    <button type="submit" class="dropdown-item py-1" disabled="@(!i.IsSelected)"><i class="bi bi-x-circle me-1 text-danger"></i>Remove Selection</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    <span>No interviews found</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,124 @@
+﻿@{
+    ViewData["Title"] = "Match Candidates";
+    var demand = (JobDemand)ViewBag.JobDemand;
+    var ranked = (List<dynamic>)Model;
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-teal"></i>Candidate Matching</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a asp-action="JobDemands" class="text-decoration-none">Job Demands</a></li>
+                    <li class="breadcrumb-item active">@demand.JobTitle</li>
+                </ol>
+            </nav>
+        </div>
+        <a asp-action="JobDemands" class="btn btn-outline-secondary rounded-pill btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Demands</a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <span class="text-muted small">Job Title</span>
+                    <div class="fw-medium">@demand.JobTitle</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small">Employer</span>
+                    <div class="fw-medium">@(demand.Employer?.CompanyName ?? "-")</div>
+                </div>
+                <div class="col-md-2">
+                    <span class="text-muted small">Openings</span>
+                    <div class="fw-medium">@demand.NumberOfOpenings</div>
+                </div>
+                <div class="col-md-2">
+                    <span class="text-muted small">Location</span>
+                    <div class="fw-medium">@(demand.WorkLocation ?? "-")</div>
+                </div>
+                <div class="col-md-2">
+                    <span class="text-muted small">Match Count</span>
+                    <div class="fw-medium">@ranked.Count candidates</div>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(demand.RequiredSkills))
+            {
+                <div class="mt-2">
+                    <span class="text-muted small">Required Skills: </span>
+                    @foreach (var s in demand.RequiredSkills.Split(','))
+                    {
+                        <span class="badge bg-light text-dark me-1">@s.Trim()</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="candidates-table-wrap">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-3">Candidate</th>
+                            <th class="py-3">Skills</th>
+                            <th class="py-3">Experience</th>
+                            <th class="py-3">Expected Salary</th>
+                            <th class="text-center py-3">Match Score</th>
+                            <th class="text-center py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in ranked)
+                        {
+                            var c = (Candidate)m.Candidate;
+                            <tr>
+                                <td class="px-3">
+                                    <div class="fw-medium">@(c.User?.FullName ?? "-")</div>
+                                    <div class="text-muted small">@(c.User?.PhoneNumber ?? "-")</div>
+                                </td>
+                                <td>
+                                    @if (c.Skills?.Any() == true)
+                                    {
+                                        var display = c.Skills.Take(3).Select(s => s.Skill?.Name).ToList();
+                                        @string.Join(", ", display)
+                                        @(c.Skills.Count > 3 ? "..." : "")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>@(c.TotalExperienceYears?.ToString() ?? "0") yrs</td>
+                                <td>@(c.ExpectedSalary?.ToString("N0") ?? "-")</td>
+                                <td class="text-center">
+                                    <span class="badge bg-@(m.Score >= 80 ? "success" : m.Score >= 50 ? "warning text-dark" : "secondary") rounded-pill px-3 fs-6">@m.Score%</span>
+                                    @if (m.TotalDemandSkills > 0)
+                                    {
+                                        <div class="small text-muted">@m.MatchedSkills/@m.TotalDemandSkills skills</div>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <form asp-action="AssignToJob" method="post" class="d-inline">
+                                        <input type="hidden" name="candidateId" value="@c.Id" />
+                                        <input type="hidden" name="jobDemandId" value="@demand.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-teal rounded-pill px-3"><i class="bi bi-plus-lg me-1"></i>Assign</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!ranked.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    <span>No matching candidates found</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
